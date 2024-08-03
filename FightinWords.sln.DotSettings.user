@@ -1,0 +1,14 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;PhysicalFolder Path="C:\Users\bcimino\.nuget\packages\wikimedia.utilities\1.0.10" Loaded="True" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=61fd5156_002Dc9ee_002D4d5a_002D8f2f_002D7b4a31bc34b2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CanDeserializeWikitionaryResponse" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::5CA7E27F-02EC-484A-B7DC-F95C818D5B1E::net8.0::TestProject1.Tests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::5CA7E27F-02EC-484A-B7DC-F95C818D5B1E::net8.0::TestProject1.ModelJsonTests.DefinitionEntry_FieldsAreRequired&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::5CA7E27F-02EC-484A-B7DC-F95C818D5B1E::net8.0::TestProject1.ModelJsonTests.RejectsNullJsonLiterals&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::5CA7E27F-02EC-484A-B7DC-F95C818D5B1E::net8.0::TestProject1.ModelJsonTests.aotNoSourceGen&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::5CA7E27F-02EC-484A-B7DC-F95C818D5B1E::net8.0::TestProject1.WhyDoesJsonContentNotWork.getJsonContentToWorkPlz&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::5CA7E27F-02EC-484A-B7DC-F95C818D5B1E::net8.0::TestProject1.TestHelpersTests.Assert_EquivalentJsons&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
