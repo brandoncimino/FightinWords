@@ -33,5 +33,5 @@ public interface IWordLookup
     public IEnumerable<WordDefinition> GetDefinitions(string word, Language language) =>
         GetDefinitionsAsync(word, language).Result;
     
-    public string GetRandomWord(int length, Language language);
+    public string GetRandomWord(int length, Language language, Random generator);
 }
