@@ -147,7 +147,6 @@ public readonly record struct Grapheme : IParsable<Grapheme>
         //  - Is possible, unlike normalization-related operations on `ReadOnlySpan<char>`c
         var normalized = graphemeCluster.Normalize();
 
-        // return OfNormalizedString(normalized);
         Preconditions.Require(normalized.AsSpan(), IsGrapheme);
         return new Grapheme(normalized);
     }
@@ -155,7 +154,7 @@ public readonly record struct Grapheme : IParsable<Grapheme>
     public static bool IsGrapheme(ReadOnlySpan<char> normalizedString)
     {
         var trimmed = TrimCombiningCharacters(normalizedString);
-        Debug.Assert(trimmed.Length > 1);
+        
         return trimmed switch
         {
             [] => false,
@@ -174,7 +173,7 @@ public readonly record struct Grapheme : IParsable<Grapheme>
         return lastNonCombining switch
         {
             < 0 => span,
-            _   => span[..lastNonCombining],
+            _   => span[..(lastNonCombining+1)],
         };
     }
 
@@ -236,68 +235,7 @@ public readonly record struct Grapheme : IParsable<Grapheme>
     {
         _ = _source!.Length;
     }
-
-    private static bool CreateFromGraphemes(
-        string                       fullSource,
-        out ImmutableArray<Grapheme> result,
-        StringSplitOptions           options,
-        bool                         allowFailure)
-    {
-        var builder = ImmutableArray.CreateBuilder<Grapheme>();
-        var erator  = StringInfo.GetTextElementEnumerator(fullSource);
-        while (erator.MoveNext())
-        {
-            var element = erator.GetTextElement();
-            if (options.HasFlag(StringSplitOptions.TrimEntries))
-            {
-                element = element.Trim();
-            }
-
-            if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (element is "")
-                {
-                    continue;
-                }
-            }
-
-            if (allowFailure)
-            {
-                if (TryParse(element, out var singleGrapheme))
-                {
-                    builder.Add(singleGrapheme);
-                    continue;
-                }
-
-                result = default;
-                return false;
-            }
-
-            builder.Add(Parse(element));
-        }
-
-        result = builder.MoveToImmutable();
-        return true;
-    }
-
-    public static bool TryParseGraphemes(string             fullSource, out ImmutableArray<Grapheme> result,
-                                         StringSplitOptions options = StringSplitOptions.None)
-    {
-        return CreateFromGraphemes(fullSource, out result, options, true);
-    }
-
-    [MustUseReturnValue]
-    public static ImmutableArray<Grapheme> ParseGraphemes(string             fullSource,
-                                                          StringSplitOptions options = StringSplitOptions.None)
-    {
-        if (CreateFromGraphemes(fullSource, out var result, options, false))
-        {
-            return result;
-        }
-
-        throw new UnreachableException("Validation failures shouldn't already been handled!");
-    }
-
+    
     static Grapheme IParsable<Grapheme>.Parse(string s, IFormatProvider? provider) => Parse(s);
 
     [MustUseReturnValue]
@@ -315,4 +253,6 @@ public readonly record struct Grapheme : IParsable<Grapheme>
 
     static bool IParsable<Grapheme>.TryParse(string? s, IFormatProvider? provider, out Grapheme result) =>
         TryParse(s, out result);
+
+    public override string ToString() => _source ?? "";
 }
