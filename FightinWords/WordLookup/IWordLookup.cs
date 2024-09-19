@@ -25,9 +25,6 @@
 /// </summary>
 public interface IWordLookup
 {
-    public Task<bool> IsWordAsync(string            word, Language language);
-    bool IsWord(string word, Language language) => IsWordAsync(word, language).Result;
-    
     public Task<IEnumerable<WordDefinition>> GetDefinitionsAsync(string word, Language language);
 
     public IEnumerable<WordDefinition> GetDefinitions(string word, Language language) =>
