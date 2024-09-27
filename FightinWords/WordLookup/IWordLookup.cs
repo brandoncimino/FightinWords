@@ -25,10 +25,16 @@
 /// </summary>
 public interface IWordLookup
 {
+    /// <summary>
+    /// Looks up a word.
+    /// </summary>
+    /// <param name="word">The word.</param>
+    /// <param name="language">The language to which the resulting <see cref="WordDefinition"/>s apply.
+    /// <br/>
+    /// Not that this does <b>not</b> directly influence the written language of the resulting <see cref="WordDefinition.Definition"/>s.</param>
+    /// <returns>The found <see cref="WordDefinition"/>s with a matching <see cref="WordDefinition.Language"/></returns>
     public Task<IEnumerable<WordDefinition>> GetDefinitionsAsync(string word, Language language);
 
     public IEnumerable<WordDefinition> GetDefinitions(string word, Language language) =>
         GetDefinitionsAsync(word, language).Result;
-    
-    public string GetRandomWord(int length, Language language, Random generator);
 }
