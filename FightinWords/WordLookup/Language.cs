@@ -1,4 +1,9 @@
-﻿namespace FightinWords.WordLookup;
+﻿using System.Collections;
+using System.Collections.Concurrent;
+using System.Globalization;
+using System.Text;
+
+namespace FightinWords.WordLookup;
 
 public enum Language
 {
@@ -15,6 +20,7 @@ public enum Language
     Swedish,
     Turkish,
     Afrikaans,
+
     /// <summary>
     /// I believe this is used by Wiktionary to mark super, <i>super</i> exotic languages like <a href="https://en.wikipedia.org/wiki/Fingallian">Fingallian</a>, <a href="https://en.wikipedia.org/wiki/Livonian_language">Livonian</a>, and <a href="https://en.wikipedia.org/wiki/Yola_dialect">Yola</a>.
     /// <example>
@@ -174,25 +180,34 @@ public enum Language
 
 public static class IsoLanguageExtensions
 {
-    public static string LanguageCode(this Language language)
+    public static string IsoLanguageCode(this Language language)
     {
         return language switch
-               {
-                   Language.English => "en",
-                   Language.German  => "de",
-                   Language.Dutch   => "nl",
-                   Language.Spanish => "es",
-                   Language.Italian => "it",
-                   Language.Gothic => "got",
-                   Language.Azerbaijan => "az",
-                   Language.Danish => "da",
-                   Language.Estonian => "et",
-                   Language.Scots => "sco",
-                   Language.Swedish => "sv",
-                   Language.Turkish => "tr",
-                   Language.Afrikaans => "ak",
-                   Language.Other => "other",
-                   _                => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-               };
+        {
+            Language.English    => "en",
+            Language.German     => "de",
+            Language.Dutch      => "nl",
+            Language.Spanish    => "es",
+            Language.Italian    => "it",
+            Language.Gothic     => "got",
+            Language.Azerbaijan => "az",
+            Language.Danish     => "da",
+            Language.Estonian   => "et",
+            Language.Scots      => "sco",
+            Language.Swedish    => "sv",
+            Language.Turkish    => "tr",
+            Language.Afrikaans  => "ak",
+            Language.Other      => "other",
+            _                   => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+        };
+    }
+
+    public static CultureInfo CultureInfo(this Language language)
+    {
+        return language switch
+        {
+            Language.Other => System.Globalization.CultureInfo.InvariantCulture,
+            _ => System.Globalization.CultureInfo.GetCultureInfo(language.IsoLanguageCode())
+        };
     }
 }
