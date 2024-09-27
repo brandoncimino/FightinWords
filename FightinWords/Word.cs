@@ -3,8 +3,8 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using FightinWords.WordLookup;
 using JetBrains.Annotations;
-using OneOf;
 
 namespace FightinWords;
 
@@ -97,4 +97,8 @@ public readonly record struct Word(ImmutableArray<Grapheme> Letters) : IParsable
     IEnumerator IEnumerable.GetEnumerator() => Letters.AsEnumerable().GetEnumerator();
 
     public override string ToString() => string.Join("", Letters);
+
+    public static implicit operator Word(ImmutableArray<Grapheme> letters) => new(letters);
 }
+
+public readonly record struct LangWord(Word Word, Language Language);

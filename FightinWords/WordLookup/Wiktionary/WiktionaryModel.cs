@@ -11,6 +11,14 @@ public static class WiktionaryModel
     /// </summary>
     public record DefinitionsResponse(ImmutableDictionary<string, ImmutableList<UsageDescription>> Usages)
     {
+        /// <summary>
+        /// The word that, when requested from Wiktionary, returns <see cref="Example"/>
+        /// </summary>
+        public const string ExampleWord = "kitten";
+        
+        /// <summary>
+        /// The raw JSON returned for a request for <see cref="ExampleWord"/>.
+        /// </summary>
         [LanguageInjection("JSON")]
         public const string Example = $$"""
                                         {
@@ -68,14 +76,16 @@ public static class WiktionaryModel
                                           ]
                                         }
                                         """;
-
-        public ImmutableList<UsageDescription> this[string isoTwoLetterLanguageCode] =>
-            Usages.GetValueOrDefault(isoTwoLetterLanguageCode);
-
-        public ImmutableList<UsageDescription> this[Language language] =>
-            Usages.GetValueOrDefault(language.LanguageCode(), ImmutableList<UsageDescription>.Empty);
     }
 
+    /// <summary>
+    /// A "usage" of a word, which is a collection of related <see cref="Definitions"/>.
+    /// </summary>
+    /// <remarks>
+    /// Different "usages" are essentially different words that are <a href="https://en.wikipedia.org/wiki/Homonym">homonyms</a> -
+    /// or more specifically, <a href="https://en.wikipedia.org/wiki/Homograph">homographs</a>, because the spelling of the word is the identifier
+    /// that dictionaries use.
+    /// </remarks>
     public readonly record struct UsageDescription(
         [property: JsonRequired] string PartOfSpeech,
         [property: JsonRequired] string Language,
