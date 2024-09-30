@@ -45,6 +45,9 @@ public sealed class History<T>(int capacity) : IEnumerable<T>
     /// </summary>
     public T Oldest => _storage[OldestIndexInStorage];
 
+    public T? OldestOrDefault() => Count > 0 ? Oldest : default;
+    public T? NewestOrDefault() => Count > 0 ? Newest : default;
+
     /// <summary>
     /// Returns my <paramref name="index"/>-th most recently <see cref="Record(T)"/>ed <typeparamref name="T"/> entry. 
     /// </summary>
