@@ -12,10 +12,10 @@ namespace FightinWords;
 /// A sequence of <see cref="Grapheme"/>s.
 /// </summary>
 /// <param name="Letters">My <see cref="Grapheme"/>s</param>
-public readonly record struct Word(ImmutableArray<Grapheme> Letters) : IParsable<Word>, IEnumerable<Grapheme>
+public readonly record struct Word(ValueArray<Grapheme> Letters) : IParsable<Word>, IEnumerable<Grapheme>
 {
     public static readonly Word Empty = new(ImmutableArray<Grapheme>.Empty);
-    public                 int  Length => Letters.Length;
+    public                 int  Length => Letters.Values.Length;
     
     private static bool TrySplitGraphemes(
         string?             fullSource,
