@@ -130,8 +130,8 @@ public sealed class History<T>(int capacity) : IEnumerable<T>
         }
 
         evicted                        =  default;
-        _storage[NewestIndexInStorage] =  entry;
         Count                          += 1;
+        _storage[NewestIndexInStorage] =  entry;
         return false;
     }
 
