@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
 using System.Text;
+using static FightinWords.SingleCharData;
 
 namespace FightinWords.Data;
 
@@ -40,14 +42,16 @@ namespace FightinWords.Data;
 /// </remarks>
 public readonly record struct Diacritic(char Standalone, char Combining, char? Modifier = default)
 {
-    public static readonly Diacritic Grave      = new('`', '\u0300', '\u02CB');
-    public static readonly Diacritic Acute      = new('\u00B4', '\u0301', '\u02CA');
-    public static readonly Diacritic Circumflex = new('^', '\u0302', '\u02C6');
-    public static readonly Diacritic Tilde      = new('~', '\u0303');
-    public static readonly Diacritic Macron     = new('\u00af', '\u0304');
-    public static readonly Diacritic Trema      = new('\u00a8', '\u0308');
-    public static readonly Diacritic Tie        = new('\u2040', '\u0361');
-    public static readonly Diacritic Undertie   = new('\u203F', '\u035C');
-    public static readonly Diacritic Ogonek     = new('\u02DB', '\u0328');
-    public static readonly Diacritic Solidus    = new('/', '\u0338');
+    public static readonly Diacritic Grave      = new(Grave_Standalone, Grave_Combining, Grave_Modifier);
+    public static readonly Diacritic Acute      = new(Acute_Standalone, Acute_Combining, Acute_Modifier);
+    public static readonly Diacritic Circumflex = new(Circumflex_Standalone, Circumflex_Combining, Circumflex_Modifier);
+    public static readonly Diacritic Tilde      = new(Tilde_Standalone, Tilde_Combining);
+    public static readonly Diacritic Macron     = new(Macron_Standalone, Macron_Combining);
+    public static readonly Diacritic Trema      = new(Trema_Standalone, Trema_Combining);
+    public static readonly Diacritic Tie        = new(Tie_Standalone, Tie_Combining);
+    public static readonly Diacritic Undertie   = new(Undertie_Standalone, Undertie_Combining);
+    public static readonly Diacritic Ogonek     = new(Ogonek_Standalone, Ogonek_Combining);
+    public static readonly Diacritic Solidus    = new(Solidus_Standalone, Solidus_Combining);
+
+    public static ImmutableHashSet<Diacritic> All => typeof(Diacritic).GetStaticData<Diacritic>().Values.ToImmutableHashSet();
 }

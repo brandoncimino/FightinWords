@@ -84,7 +84,17 @@ public static class TestHelpers
     public static IEnumerable<object?> ReadStaticFields(this Type owner) =>
         owner.GetStaticFields().Select(it => it.GetValue(null));
 
-    public static IEnumerable<T> GetStaticData<T>(this Type owner)
+    public static ImmutableDictionary<string, TData> GetStaticData<TData>(this Type owner)
+    {
+        return owner.GetStaticFields()
+                    .Where(it => it.FieldType.IsAssignableFrom(typeof(TData)))
+                    .ToImmutableDictionary(
+                        it => it.Name,
+                        it => (TData?)it.GetValue(null) ?? throw new InvalidOperationException($"The value of the static field {it} was null!")
+                    );
+    }
+    
+    public static IEnumerable<T> GetStaticData_Flatten<T>(this Type owner)
     {
         return owner.GetStaticFields()
                     .Where(it =>
@@ -218,4 +228,13 @@ public static class TestHelpers
         a.Should().BeEquivalentTo(b);
         throw new NotImplementedException();
     }
+
+    public static Random CreateRandom([CallerMemberName] string seed = "")
+    {
+        return new Random(seed.Sum(it => it));
+    }
+    
+    public static T GetRandom<T>(this IList<T> choices, Random random) => choices[random.Next(choices.Count)];
+    
+    public static T PickFrom<T>(this Random random, IList<T> choices) => choices[random.Next(choices.Count)];
 }
