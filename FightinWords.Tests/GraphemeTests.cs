@@ -10,13 +10,6 @@ public class GraphemeTests
     {
         Assert_GraphemeSource(Grapheme.Parse(c), c.ToString());
     }
-
-    [Test]
-    public void GetAsciiDirect()
-    {
-        var ascii = SingleCharData.AsciiChars;
-        Console.WriteLine(ascii);
-    }
     
     [Test]
     public void CharNumbers_AreValid([ValueSource(typeof(SingleCharData), nameof(SingleCharData.Numbers))] char c)
