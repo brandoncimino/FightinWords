@@ -163,18 +163,15 @@ public readonly record struct Grapheme : IParsable<Grapheme>
             _ => StringInfo.GetNextTextElementLength(trimmed) == trimmed.Length
         };
     }
-
-    private static ReadOnlySpan<char> TrimCombiningCharacters(ReadOnlySpan<char> span)
+    
+    internal static ReadOnlySpan<char> TrimCombiningCharacters(ReadOnlySpan<char> span)
     {
-        const char minCombiningChar = '\u0312';
-        const char maxCombiningChar = '\u036F';
-        var        lastNonCombining = span.LastIndexOfAnyExceptInRange(minCombiningChar, maxCombiningChar);
-
-        return lastNonCombining switch
+        while (span.Length > 0 && CharUnicodeInfo.GetUnicodeCategory(span[^1]) is UnicodeCategory.NonSpacingMark)
         {
-            < 0 => span,
-            _   => span[..(lastNonCombining+1)],
-        };
+            span = span[..^1];
+        }
+
+        return span;
     }
 
     private static bool ParseNormalizedString(string normalized, bool allowFailure, out Grapheme result)
