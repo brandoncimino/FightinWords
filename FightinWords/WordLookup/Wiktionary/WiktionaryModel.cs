@@ -9,13 +9,13 @@ public static class WiktionaryModel
     /// <summary>
     /// The response from a <see cref="HttpMethod.Get"/> request to <a href="https://en.wiktionary.org/api/rest_v1/#/Page%20content/get_page_definition__term_">/page/definition/{word}</a>.
     /// </summary>
-    public record DefinitionsResponse(ImmutableDictionary<string, ImmutableList<UsageDescription>> Usages)
+    public sealed record DefinitionsResponse(ImmutableDictionary<string, ImmutableList<UsageDescription>> Usages)
     {
         /// <summary>
         /// The word that, when requested from Wiktionary, returns <see cref="Example"/>
         /// </summary>
         public const string ExampleWord = "kitten";
-        
+
         /// <summary>
         /// The raw JSON returned for a request for <see cref="ExampleWord"/>.
         /// </summary>
@@ -87,8 +87,8 @@ public static class WiktionaryModel
     /// that dictionaries use.
     /// </remarks>
     public readonly record struct UsageDescription(
-        [property: JsonRequired] string PartOfSpeech,
-        [property: JsonRequired] string Language,
+        [property: JsonRequired] string                         PartOfSpeech,
+        [property: JsonRequired] string                         Language,
         [property: JsonRequired] ImmutableList<DefinitionEntry> Definitions
     ) : IJsonOnDeserialized
     {

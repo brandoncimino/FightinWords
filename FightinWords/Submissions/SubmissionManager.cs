@@ -48,7 +48,7 @@ public class SubmissionManager
     /// The combined results from the <see cref="IScorer"/> and <see cref="IWordLookup"/> for a given word,
     /// which are always the same, regardless of the state of the game.
     /// </summary>
-    public record WordRating(int Points, ImmutableArray<WordDefinition> Definitions);
+    public sealed record WordRating(int Points, ImmutableArray<WordDefinition> Definitions);
 
     private readonly History<Judgement> _judgementHistory = new(10);
 

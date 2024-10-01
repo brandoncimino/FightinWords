@@ -1,10 +1,9 @@
-﻿using System.Collections.Immutable;
-using OneOf;
-using OneOf.Types;
+﻿using OneOf;
 
 namespace FightinWords.Submissions;
 
-public sealed class LetterPoolSubmissionScreener : ISubmissionScreener<string, Word, LetterPoolSubmissionScreener.FailedScreening>
+public sealed class
+    LetterPoolSubmissionScreener : ISubmissionScreener<string, Word, LetterPoolSubmissionScreener.FailedScreening>
 {
     public required Word LetterPool        { get; init; }
     public required int  MinimumWordLength { get; init; }
@@ -40,5 +39,5 @@ public sealed class LetterPoolSubmissionScreener : ISubmissionScreener<string, W
         return result;
     }
 
-    public record FailedScreening(string Reason);
+    public sealed record FailedScreening(string Reason);
 }

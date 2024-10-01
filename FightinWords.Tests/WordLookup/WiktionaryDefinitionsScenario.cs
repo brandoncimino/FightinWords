@@ -4,7 +4,7 @@ using FightinWords.WordLookup.Wiktionary;
 
 namespace FightinWords.WordLookup;
 
-public record WiktionaryDefinitionsScenario(
+public sealed record WiktionaryDefinitionsScenario(
     string                        RequestedWord,
     Language                      RequestedLanguage,
     [StringSyntax("JSON")] string WiktionaryResponseJson,
@@ -13,8 +13,7 @@ public record WiktionaryDefinitionsScenario(
 {
     private static WiktionaryDefinitionsScenario Create(
         string                              word,
-        [StringSyntax("JSON")]
-        string                              responseJson,
+        [StringSyntax("JSON")] string       responseJson,
         Language                            language,
         IEnumerable<(PartOfSpeech, string)> definitions
     )
@@ -284,7 +283,7 @@ public record WiktionaryDefinitionsScenario(
         """,
         []
     );
-    
+
     public static IEnumerable<WiktionaryDefinitionsScenario> GetAllScenarios()
     {
         yield return LanguageNotPresent;

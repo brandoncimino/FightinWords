@@ -1,12 +1,11 @@
-﻿using System.Collections.Immutable;
-using FightinWords.WordLookup;
+﻿using FightinWords.WordLookup;
 
 namespace FightinWords.Console;
 
 /// <summary>
 /// The stuff that needs to get configured before we can start playing, and shouldn't change while in-game.
 /// </summary>
-public record GamePlan
+public sealed record GamePlan
 {
     public required Language             Language          { get; init; }
     public required Word                 ProgenitorPool    { get; init; }
