@@ -9,8 +9,14 @@
 
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0"/>
       <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+        <PackageReference Include="OneOf" Version="3.0.271"/>
       <PackageReference Include="System.Text.Json" Version="8.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Letters\"/>
     </ItemGroup>
 
 </Project>
