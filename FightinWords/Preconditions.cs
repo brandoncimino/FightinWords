@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace FightinWords;
@@ -6,6 +7,7 @@ namespace FightinWords;
 /// <summary>
 /// Helper methods that validate arguments and throw <see cref="ArgumentException"/>s.
 /// </summary>
+[StackTraceHidden]
 internal static class Preconditions
 {
     [UsedImplicitly]
@@ -21,7 +23,7 @@ internal static class Preconditions
 
         return value;
     }
-
+    
     public static ReadOnlySpan<T> RejectIf<T>(ReadOnlySpan<T> span, RoSpanFunc<T, bool> failCondition,
                                               [CallerArgumentExpression(nameof(span))]
                                               string _span = "",
