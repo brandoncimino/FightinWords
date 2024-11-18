@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
+using System.Collections.Immutable;
 using OneOf;
 
 namespace FightinWords.Console;
@@ -17,11 +18,11 @@ public sealed partial class AliasMatcher
         Partial
     }
 
-    private readonly ImmutableDictionary<string, KnownAlias> _knownAliases;
+    private readonly FrozenDictionary<string, KnownAlias> _knownAliases;
 
     public AliasMatcher(IEnumerable<KnownAlias> knownAliases)
     {
-        _knownAliases = knownAliases.ToImmutableDictionary(it => it.CanonicalName.ToLowerInvariant());
+        _knownAliases = knownAliases.ToFrozenDictionary(it => it.CanonicalName.ToLowerInvariant());
         // Make sure that NONE of the names overlap
 
         var duplicates = _knownAliases.SelectMany(it => AllNames(it.Value))
