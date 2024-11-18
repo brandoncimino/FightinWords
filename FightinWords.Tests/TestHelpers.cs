@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
@@ -6,7 +7,6 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Castle.Core.Internal;
 using FightinWords.WordLookup;
 using FluentAssertions;
 using OneOf;
@@ -18,8 +18,12 @@ public static class TestHelpers
     public static Rune           AsRune(this      char c)                  => new(c);
     public static IEnumerable<T> Repeated<T>(this T    element, int count) => Enumerable.Repeat(element, count);
 
-    public static string JoinString<T>(this IEnumerable<T> elements, string joiner = "", string prefix = "",
-                                       string suffix = "") => prefix + string.Join(joiner, elements) + suffix;
+    public static string JoinString<T>(
+        this IEnumerable<T> elements,
+        string              joiner = "",
+        string              prefix = "",
+        string              suffix = ""
+    ) => prefix + string.Join(joiner, elements) + suffix;
 
     public static IEnumerable<string> AsEnumerable(this TextElementEnumerator textElementEnumerator)
     {
@@ -31,13 +35,54 @@ public static class TestHelpers
 
     public static int LengthInTextElements(this string str) => new StringInfo(str).LengthInTextElements;
 
-    public static T Print<T>(this T value,
-                             [CallerArgumentExpression(nameof(value))]
-                             string _value =
-                                 "")
+    public static T Print<T>(
+        this T value,
+        [CallerArgumentExpression(nameof(value))]
+        string _value =
+            ""
+    )
     {
-        Console.WriteLine($"{_value,10} {value?.ToString() ?? "◌"}");
+        var valueString = GetValueString(value);
+        System.Console.WriteLine($"{_value,10} {valueString}");
         return value;
+    }
+
+    private static string GetValueString<T>(T value)
+    {
+        if (value is null)
+        {
+            return "◌";
+        }
+
+        if (value is string str)
+        {
+            return str;
+        }
+
+        if (value is IEnumerable enumerable)
+        {
+            var sb = new StringBuilder();
+            sb.Append('[');
+
+            bool first = true;
+            foreach (var it in enumerable)
+            {
+                sb.Append(GetValueString(it));
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    sb.Append(", ");
+                }
+            }
+
+            sb.Append(']');
+            return sb.ToString();
+        }
+
+        return "" + value;
     }
 
     public static IImmutableDictionary<string, bool> GetIsProperties<T>(this T c)
@@ -90,10 +135,11 @@ public static class TestHelpers
                     .Where(it => it.FieldType.IsAssignableFrom(typeof(TData)))
                     .ToImmutableDictionary(
                         it => it.Name,
-                        it => (TData?)it.GetValue(null) ?? throw new InvalidOperationException($"The value of the static field {it} was null!")
+                        it => (TData?)it.GetValue(null) ??
+                              throw new InvalidOperationException($"The value of the static field {it} was null!")
                     );
     }
-    
+
     public static IEnumerable<T> GetStaticData_Flatten<T>(this Type owner)
     {
         return owner.GetStaticFields()
@@ -119,8 +165,8 @@ public static class TestHelpers
 
     [StackTraceHidden]
     public static void AssertEquals<T>(
-        T actual,
-        T expected,
+        T      actual,
+        T      expected,
         string label = "",
         [CallerArgumentExpression(nameof(actual))]
         string _actual = ""
@@ -134,7 +180,7 @@ public static class TestHelpers
         var responseMessage = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
-            Content = new StringContent(json, Encoding.UTF8, "application/json")
+            Content    = new StringContent(json, Encoding.UTF8, "application/json")
         };
 
         return new MockHttpHandler([responseMessage]);
@@ -151,11 +197,13 @@ public static class TestHelpers
         }
     }
 
-    public static Func<I, O> LimitInvocations<I, O>(Func<I, O> func,
-                                                     int        limit = 1,
-                                                     [CallerArgumentExpression(
-                                                         nameof(func))]
-                                                     string _func = "")
+    public static Func<I, O> LimitInvocations<I, O>(
+        Func<I, O> func,
+        int        limit = 1,
+        [CallerArgumentExpression(
+            nameof(func))]
+        string _func = ""
+    )
     {
         var counter = new Counter();
         return input =>
@@ -173,7 +221,7 @@ public static class TestHelpers
 
     public sealed class Spy<I, O>
     {
-        private readonly  Func<I, O>                        _functionWithSurveillance;
+        private readonly Func<I, O>                        _functionWithSurveillance;
         private readonly ConcurrentQueue<InvocationReport> _intel = new();
 
         public ImmutableList<InvocationReport> Intel => _intel.ToImmutableList();
@@ -233,8 +281,20 @@ public static class TestHelpers
     {
         return new Random(seed.Sum(it => it));
     }
-    
+
     public static T GetRandom<T>(this IList<T> choices, Random random) => choices[random.Next(choices.Count)];
-    
+
     public static T PickFrom<T>(this Random random, IList<T> choices) => choices[random.Next(choices.Count)];
+
+    public static OneOf<T, Exception> TryCatch<T>(Func<T> function)
+    {
+        try
+        {
+            return function();
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 }
