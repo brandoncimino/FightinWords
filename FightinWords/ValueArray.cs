@@ -10,6 +10,8 @@ namespace FightinWords;
 /// <typeparam name="T"><inheritdoc cref="ImmutableArray{T}"/></typeparam>
 public readonly record struct ValueArray<T>(ImmutableArray<T> Values) : IEnumerable<T>
 {
+    public static readonly ValueArray<T> Empty = ImmutableArray<T>.Empty;
+
     public bool Equals(ValueArray<T> other)
     {
         return Values.SequenceEqual(other.Values);
@@ -18,7 +20,7 @@ public readonly record struct ValueArray<T>(ImmutableArray<T> Values) : IEnumera
     public override int GetHashCode()
     {
         var hc = new HashCode();
-        
+
         foreach (var it in Values)
         {
             hc.Add(it);
@@ -42,5 +44,13 @@ public readonly record struct ValueArray<T>(ImmutableArray<T> Values) : IEnumera
     IEnumerator<T> IEnumerable<T>.GetEnumerator()
     {
         return Values.AsEnumerable().GetEnumerator();
+    }
+}
+
+public static class ValueArrayExtensions
+{
+    public static ValueArray<T> ToValueArray<T>(this IEnumerable<T> stuff)
+    {
+        return new ValueArray<T>([..stuff]);
     }
 }
