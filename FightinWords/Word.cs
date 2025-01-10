@@ -16,12 +16,12 @@ public readonly record struct Word(ValueArray<Grapheme> Letters) : IParsable<Wor
 {
     public static readonly Word Empty = new(ImmutableArray<Grapheme>.Empty);
     public                 int  Length => Letters.Values.Length;
-    
+
     private static bool TrySplitGraphemes(
-        string?             fullSource,
-        out Word result,
+        string?            fullSource,
+        out Word           result,
         StringSplitOptions options,
-        bool allowFailure
+        bool               allowFailure
     )
     {
         if (string.IsNullOrEmpty(fullSource))
@@ -29,7 +29,7 @@ public readonly record struct Word(ValueArray<Grapheme> Letters) : IParsable<Wor
             result = Empty;
             return true;
         }
-        
+
         var builder = ImmutableArray.CreateBuilder<Grapheme>();
         var erator  = StringInfo.GetTextElementEnumerator(fullSource);
         while (erator.MoveNext())
@@ -44,7 +44,7 @@ public readonly record struct Word(ValueArray<Grapheme> Letters) : IParsable<Wor
             {
                 continue;
             }
-            
+
             if (allowFailure)
             {
                 if (Grapheme.TryParse(element, out var singleGrapheme))
@@ -56,14 +56,14 @@ public readonly record struct Word(ValueArray<Grapheme> Letters) : IParsable<Wor
                 result = default;
                 return false;
             }
-            
+
             builder.Add(Grapheme.Parse(element));
         }
 
         result = new Word(builder.DrainToImmutable());
         return true;
     }
-    
+
     static Word IParsable<Word>.Parse(string s, IFormatProvider? provider) => Parse(s);
 
     [MustUseReturnValue]
@@ -77,7 +77,8 @@ public readonly record struct Word(ValueArray<Grapheme> Letters) : IParsable<Wor
         throw new UnreachableException("Validation failures should've already been handled!");
     }
 
-    static bool IParsable<Word>.TryParse(string? s, IFormatProvider? provider, out Word result) => TryParse(s, out result);
+    static bool IParsable<Word>.TryParse(string? s, IFormatProvider? provider, out Word result) =>
+        TryParse(s, out result);
 
     [MustUseReturnValue]
     public static bool TryParse(string? s, out Word result, StringSplitOptions options = StringSplitOptions.None)
@@ -89,13 +90,16 @@ public readonly record struct Word(ValueArray<Grapheme> Letters) : IParsable<Wor
     {
         return Letters.GetEnumerator();
     }
-    
-    [SuppressMessage("ReSharper", "NotDisposedResourceIsReturned", Justification = "Dude, it's an enumerator, calm down")]
+
+    [SuppressMessage("ReSharper", "NotDisposedResourceIsReturned",
+        Justification = "Dude, it's an enumerator, calm down")]
     IEnumerator<Grapheme> IEnumerable<Grapheme>.GetEnumerator() => Letters.AsEnumerable().GetEnumerator();
 
-    [SuppressMessage("ReSharper", "NotDisposedResourceIsReturned", Justification = "Dude, it's an enumerator, calm down")]
+    [SuppressMessage("ReSharper", "NotDisposedResourceIsReturned",
+        Justification = "Dude, it's an enumerator, calm down")]
     IEnumerator IEnumerable.GetEnumerator() => Letters.AsEnumerable().GetEnumerator();
 
+    /// <returns>All of my <see cref="Letters"/> joined into a <see cref="string"/>.</returns>
     public override string ToString() => string.Join("", Letters);
 
     public static implicit operator Word(ImmutableArray<Grapheme> letters) => new(letters);
