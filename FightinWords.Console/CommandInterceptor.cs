@@ -10,7 +10,8 @@ public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, CO
     where COMMAND : struct, Enum
 {
     /// <summary>
-    /// The first thing you type that indicates that the following input is a special command. Usually <c>!</c>, <c>/</c>, <c>-</c>, or <c>--</c>.
+    /// The first thing you type that indicates that the following input is a special command.
+    /// Usually <c>!</c>, <c>/</c>, <c>-</c>, or <c>--</c>.
     /// </summary>
     public string Prefix { get; init; } = "";
 
