@@ -12,4 +12,5 @@ public sealed record GamePlan
     public required TimeSpan             TimeLimit         { get; init; }
     public          SpectreFactory.Theme Theme             { get; init; } = new();
     public          int                  MinimumWordLength { get; init; } = 3;
+    public          string?              RandomSeed        { get; init; } = null;
 }
