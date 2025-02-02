@@ -1,28 +1,27 @@
-﻿using System.Collections.Immutable;
-using System.Text;
+﻿using System.Text;
 
 namespace FightinWords;
 
 public class GraphemeTests
 {
     [Test]
-    public void CharLetters_AreValid([ValueSource(typeof(SingleCharData), nameof(SingleCharData.Letters))] char c)
+    public void CharLetters_AreValid([ValueSource(typeof(SingleCharData), nameof(SingleCharData.Letters))] CharData c)
     {
-        Assert_GraphemeSource(Grapheme.Parse(c), c.ToString());
+        Assert_GraphemeSource(Grapheme.Parse(c), c.Value.ToString());
     }
-    
+
     [Test]
-    public void CharNumbers_AreValid([ValueSource(typeof(SingleCharData), nameof(SingleCharData.Numbers))] char c)
+    public void CharNumbers_AreValid([ValueSource(typeof(SingleCharData), nameof(SingleCharData.Numbers))] CharData c)
     {
-        Assert_GraphemeSource(Grapheme.Parse(c), c.ToString());
+        Assert_GraphemeSource(Grapheme.Parse(c), c.Value.ToString());
     }
-    
+
     [Test]
-    public void CharSymbols_AreValid([ValueSource(typeof(SingleCharData), nameof(SingleCharData.Symbols))] char c)
+    public void CharSymbols_AreValid([ValueSource(typeof(SingleCharData), nameof(SingleCharData.Symbols))] CharData c)
     {
-        Assert_GraphemeSource(Grapheme.Parse(c), c.ToString());
+        Assert_GraphemeSource(Grapheme.Parse(c), c.Value.ToString());
     }
-    
+
     private static void Assert_GraphemeSource(Grapheme actual, string expectedSource)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedSource);

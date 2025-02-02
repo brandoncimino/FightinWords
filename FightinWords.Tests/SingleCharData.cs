@@ -1,9 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text;
 using System.Unicode;
-using FightinWords.Data;
 using JetBrains.Annotations;
 
 namespace FightinWords;
@@ -17,7 +14,8 @@ public readonly record struct CharData(char Value)
         return $"{Name} `{Value}`";
     }
 
-    public static implicit operator CharData(char   value) => new(value);
+    public static implicit operator CharData(char value) => new(value);
+    public static implicit operator char(CharData value) => value.Value;
 }
 
 /// <summary>
@@ -149,5 +147,4 @@ public static class SingleCharData
         ..AllChars.Where(it => char.IsWhiteSpace(it.Value) || char.IsControl(it.Value) || char.IsSurrogate(it.Value)),
         ZeroWidthJoiner
     ];
-
 }
