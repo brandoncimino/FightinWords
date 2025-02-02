@@ -228,7 +228,7 @@ internal static class Preconditions
             return expression;
         }
 
-        return $"{expression} {valueString}";
+        return $"({expression}) `{valueString}`";
     }
 
     #endregion
