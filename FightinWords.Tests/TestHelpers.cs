@@ -297,4 +297,102 @@ public static class TestHelpers
             return e;
         }
     }
+
+    private class AlwaysThrowRandomImpl : Random
+    {
+        public override int Next()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override int Next(int maxValue)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override int Next(int minValue, int maxValue)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void NextBytes(byte[] buffer)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void NextBytes(Span<byte> buffer)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override double NextDouble()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override long NextInt64()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override long NextInt64(long maxValue)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override long NextInt64(long minValue, long maxValue)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override float NextSingle()
+        {
+            throw new NotSupportedException();
+        }
+
+        protected override double Sample()
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    /// <summary>
+    /// An implementation of <see cref="Random"/> that <b>always</b> throws an exception.
+    /// </summary>
+    public static readonly Random AlwaysThrowRandom = new AlwaysThrowRandomImpl();
+
+    public static T0 GetT0<T0, T1>(this OneOf<T0, T1> oneOf)
+    {
+        if (oneOf.TryPickT0(out var got, out var not))
+        {
+            return got;
+        }
+
+        throw new InvalidOperationException(
+            $"Cannot get {typeof(OneOf<T0, T1>).PrettyType()} as T0 because it is T1: {not}");
+    }
+
+    public static string PrettyType(this Type type, int depth = 1)
+    {
+        if (type.IsGenericType is false)
+        {
+            return type.Name;
+        }
+
+        var genericArgs = type.GetGenericArguments();
+
+
+        var argStrings = genericArgs.Select(it => depth <= 0 ? "" : PrettyType(it, depth - 1));
+
+        var sb = new StringBuilder(type.Name);
+        sb.Append('<');
+        sb.AppendJoin(',', argStrings);
+        sb.Append('>');
+        return sb.ToString();
+    }
+
+    public static AssertionException Fail([CallerMemberName] string _caller = "")
+    {
+        return new AssertionException($"{_caller} should not have been run!");
+    }
 }
