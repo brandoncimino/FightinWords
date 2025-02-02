@@ -10,16 +10,6 @@ namespace FightinWords.Scoring;
 /// </summary>
 public sealed class ScrabbleScorer : IScorer
 {
-    /*
-     1 point: A, E, I, L, N, O, R, S, T, U
-     2 points: D, G
-     3 points: B, C, M, P
-     4 points: F, H, V, W, Y
-     5 points: K
-     8 points: J, X
-     10 points: Q, Z
-     */
-
     [SuppressMessage("ReSharper", "SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault")]
     public static int GetLetterScore(Rune letter, Language language)
     {
@@ -34,6 +24,35 @@ public sealed class ScrabbleScorer : IScorer
         };
     }
 
+    [SuppressMessage("ReSharper", "SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault")]
+    public static int GetLetterCount(Rune letter, Language language)
+    {
+        var lower = Rune.ToLowerInvariant(letter);
+        return language switch
+        {
+            Language.English   => GetEnglishLetterCount(lower),
+            Language.German    => throw new NotImplementedException(),
+            Language.Afrikaans => throw new NotImplementedException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(language), language,
+                "Not a language that plays Scrabble!")
+        };
+    }
+
+    /// <summary>
+    /// <code><![CDATA[
+    /// 2 blank tiles (scoring 0 points)
+    /// 1 point: E ×12, A ×9, I ×9, O ×8, N ×6, R ×6, T ×6, L ×4, S ×4, U ×4
+    /// 2 points: D ×4, G ×3
+    /// 3 points: B ×2, C ×2, M ×2, P ×2
+    /// 4 points: F ×2, H ×2, V ×2, W ×2, Y ×2
+    /// 5 points: K ×1
+    /// 8 points: J ×1, X ×1
+    /// 10 points: Q ×1, Z ×1
+    /// ]]></code>
+    /// </summary>
+    /// <param name="letter"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     private static int GetEnglishLetterScore(Rune letter)
     {
         Debug.Assert(!Rune.IsUpper(letter));
@@ -48,6 +67,23 @@ public sealed class ScrabbleScorer : IScorer
             'q' or 'z'                                                         => 10,
             _ => throw new ArgumentOutOfRangeException(nameof(letter), letter,
                 "Not a valid letter in English Scrabble")
+        };
+    }
+
+    private static int GetEnglishLetterCount(Rune letter)
+    {
+        Debug.Assert(!Rune.IsUpper(letter));
+        return letter.Value switch
+        {
+            'e' => 12,
+            'a' or 'i' => 9,
+            'o' => 8,
+            'n' or 'r' or 't' => 6,
+            'l' or 's' or 'u' or 'd' => 4,
+            'g' => 3,
+            'b' or 'c' or 'm' or 'p' or 'f' or 'h' or 'v' or 'w' or 'y' => 2,
+            'k' or 'j' or 'x' or 'q' or 'z' => 1,
+            _ => throw new ArgumentOutOfRangeException(nameof(letter), letter, "Not a valid letter in English Scrabble")
         };
     }
 
