@@ -6,7 +6,7 @@ namespace FightinWords.Console;
 /// <summary>
 /// Matches user input to the most appropriate <typeparamref name="COMMAND"/>.
 /// </summary>
-public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, COMMAND?, Failure>
+public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, COMMAND?>
     where COMMAND : struct, Enum
 {
     /// <summary>

@@ -2,13 +2,12 @@
 
 namespace FightinWords.Submissions;
 
-public sealed class
-    LetterPoolSubmissionScreener : ISubmissionScreener<string, Word, LetterPoolSubmissionScreener.FailedScreening>
+public sealed class LetterPoolSubmissionScreener : ISubmissionScreener<string, Word>
 {
     public required Word LetterPool        { get; init; }
     public required int  MinimumWordLength { get; init; }
 
-    public OneOf<Word, FailedScreening> ScreenInput(string rawInput)
+    public OneOf<Word, Failure> ScreenInput(string rawInput)
     {
         string userInput = rawInput;
         userInput = userInput.ToLower();
@@ -16,12 +15,12 @@ public sealed class
         if (Word.TryParse(userInput, out var result,
                 StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) == false)
         {
-            return new FailedScreening("You entered some weird junk that we couldn't parse.");
+            return new Failure("You entered some weird junk that we couldn't parse.");
         }
 
         if (result.Length < MinimumWordLength)
         {
-            return new FailedScreening($"You must enter at least {MinimumWordLength} letters.");
+            return new Failure($"You must enter at least {MinimumWordLength} letters.");
         }
 
         var remainingPool = LetterPool.ToList();
@@ -30,7 +29,7 @@ public sealed class
         {
             if (remainingPool.Remove(letter) == false)
             {
-                return new FailedScreening(LetterPool.Contains(letter)
+                return new Failure(LetterPool.Contains(letter)
                     ? $"You've exceeded your `{letter}` budget."
                     : $"The letter `{letter}` isn't in your pool.");
             }
@@ -38,6 +37,4 @@ public sealed class
 
         return result;
     }
-
-    public sealed record FailedScreening(string Reason);
 }

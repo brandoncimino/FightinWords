@@ -32,11 +32,7 @@ public class SubmissionManager
 
     public required IWordLookup WordLookup { get; init; }
 
-    public required ISubmissionScreener<string, Word, LetterPoolSubmissionScreener.FailedScreening> SubmissionScreener
-    {
-        get;
-        init;
-    }
+    public required ISubmissionScreener<string, Word> SubmissionScreener { get; init; }
 
 
     /// <summary>
@@ -53,7 +49,7 @@ public class SubmissionManager
     private readonly History<Judgement> _judgementHistory = new(10);
 
     [MustUseReturnValue]
-    public OneOf<Judgement, LetterPoolSubmissionScreener.FailedScreening> SubmitRawInput(
+    public OneOf<Judgement, Failure> SubmitRawInput(
         string   rawInput,
         Language language
     )
@@ -63,7 +59,7 @@ public class SubmissionManager
     }
 
     [MustUseReturnValue]
-    private Judgement SubmitWord(Word word, Language language)
+    public Judgement SubmitWord(Word word, Language language)
     {
         var judgement = JudgeWord(word, language);
         _judgementHistory.Record(judgement);

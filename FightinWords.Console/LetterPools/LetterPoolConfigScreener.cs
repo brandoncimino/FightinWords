@@ -4,7 +4,7 @@ using OneOf;
 
 namespace FightinWords.Console.LetterPools;
 
-public sealed class LetterPoolConfigScreener : ISubmissionScreener<Word, ILetterPool, Failure>
+public sealed class LetterPoolConfigScreener : ISubmissionScreener<Word, ILetterPool>
 {
     public const int MinimumPoolSize = 5;
 

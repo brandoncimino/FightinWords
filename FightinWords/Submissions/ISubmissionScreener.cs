@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using OneOf;
+﻿using OneOf;
 
 namespace FightinWords.Submissions;
 
@@ -8,7 +7,9 @@ namespace FightinWords.Submissions;
 ///
 /// This is in contrast to <see cref="WordLookup.IWordLookup"/>, which checks if a <i><see cref="Legality.Legal"/></i> string is also a word.
 /// </summary>
-public interface ISubmissionScreener<in INPUT, SUCCESS, FAILURE>
+public interface ISubmissionScreener<in INPUT, SUCCESS>
 {
-    public OneOf<SUCCESS, FAILURE> ScreenInput(INPUT rawSubmission);
+    public OneOf<SUCCESS, Failure> ScreenInput(INPUT rawSubmission);
 }
+
+public delegate OneOf<SUCCESS, Failure> Screener<in INPUT, SUCCESS>(INPUT rawSubmission);
