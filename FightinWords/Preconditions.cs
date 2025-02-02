@@ -142,7 +142,7 @@ internal static class Preconditions
             return span;
         }
 
-        throw new ArgumentException($"{span.FormatSpan()} must satisfy: {_predicate}", _span);
+        throw new ArgumentException($"`{span.FormatSpan()}` must satisfy: {_predicate}", _span);
     }
 
     /// <summary>
@@ -182,7 +182,7 @@ internal static class Preconditions
         }
 
         throw new ArgumentOutOfRangeException(paramName, argument,
-            $"Must be the default({typeof(T)}), {default(T)?.ToString() ?? "null"}");
+            $"Must be the default({typeof(T)}), `{default(T)?.ToString() ?? "null"}`");
     }
 
     #region Formatting
