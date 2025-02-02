@@ -14,7 +14,7 @@ public readonly record struct ValueArray<T>(ImmutableArray<T> Values) : IEnumera
 
     public bool Equals(ValueArray<T> other)
     {
-        return Values.SequenceEqual(other.Values);
+        return other.Values.IsDefaultOrEmpty ? Values.IsDefaultOrEmpty : Values.SequenceEqual(other.Values);
     }
 
     public override int GetHashCode()
@@ -43,7 +43,7 @@ public readonly record struct ValueArray<T>(ImmutableArray<T> Values) : IEnumera
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator()
     {
-        return Values.AsEnumerable().GetEnumerator();
+        return Values.IsDefaultOrEmpty ? Enumerable.Empty<T>().GetEnumerator() : Values.AsEnumerable().GetEnumerator();
     }
 }
 
@@ -52,5 +52,10 @@ public static class ValueArrayExtensions
     public static ValueArray<T> ToValueArray<T>(this IEnumerable<T> stuff)
     {
         return new ValueArray<T>([..stuff]);
+    }
+
+    public static bool IsNullOrEmpty<T>(this ValueArray<T>? stuff)
+    {
+        return stuff?.Values.IsDefaultOrEmpty ?? true;
     }
 }

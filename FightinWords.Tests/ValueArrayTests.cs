@@ -39,4 +39,19 @@ public class ValueArrayTests
 
         vArray_1.Equals(vArray_2).Should().BeTrue();
     }
+
+    [Test]
+    public void DefaultEqualsEmpty()
+    {
+        var empty = ValueArray<string>.Empty;
+        var def   = default(ValueArray<string>);
+
+        TestHelpers.AssertEquals(empty == def,             true);
+        TestHelpers.AssertEquals(empty.Equals(def),        true);
+        TestHelpers.AssertEquals(empty.SequenceEqual(def), true);
+
+        TestHelpers.AssertEquals(def == empty,             true);
+        TestHelpers.AssertEquals(def.Equals(empty),        true);
+        TestHelpers.AssertEquals(def.SequenceEqual(empty), true);
+    }
 }
