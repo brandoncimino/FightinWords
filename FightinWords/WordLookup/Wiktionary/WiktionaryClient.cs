@@ -1,12 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Linq.Expressions;
 using System.Net;
-using System.Net.Cache;
 using System.Net.Http.Json;
-using System.Text.RegularExpressions;
-using System.Xml;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace FightinWords.WordLookup.Wiktionary;
 
@@ -18,7 +13,7 @@ namespace FightinWords.WordLookup.Wiktionary;
 public sealed partial class WiktionaryClient : IWordLookup
 {
     public const string DefinitionsEndpoint = "page/definition";
-    public       string WiktionaryDomain    { get; init; } = "wiktionary.org";
+    public       string WiktionaryDomain { get; init; } = "wiktionary.org";
 
     /// <summary>
     /// The language of <b><i>Wiktionary itself</i></b> - i.e. the language that the <see cref="WiktionaryModel.DefinitionEntry.Definition"/>s will be <i><b>written in</b></i>.
@@ -55,7 +50,9 @@ public sealed partial class WiktionaryClient : IWordLookup
         WiktionaryClient client
     )
     {
-        var response = await client.HttpClient.GetAsync(client.OverrideUrl ?? GetWordEndpoint(word, client.WiktionaryLanguage, client.WiktionaryDomain));
+        var response = await client.HttpClient.GetAsync(client.OverrideUrl ??
+                                                        GetWordEndpoint(word, client.WiktionaryLanguage,
+                                                            client.WiktionaryDomain));
 
 //         Console.WriteLine($"""
 //                            RESPONSE for `{word}`: {response.StatusCode} "{response.ReasonPhrase}"
