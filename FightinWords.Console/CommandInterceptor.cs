@@ -13,7 +13,9 @@ public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, CO
     /// The first thing you type that indicates that the following input is a special command.
     /// Usually <c>!</c>, <c>/</c>, <c>-</c>, or <c>--</c>.
     /// </summary>
-    public string Prefix { get; init; } = "";
+    public string Prefix { get; init; } = "!";
+
+    public UnknownCommandBehavior UnknownCommandBehavior { get; init; } = UnknownCommandBehavior.Reject;
 
     private readonly AliasMatcher _commandMatcher;
 
@@ -42,9 +44,17 @@ public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, CO
 
         var match = _commandMatcher.FindMatch(trimmedUserInput);
 
-        return match.Map(
-            alias => (COMMAND?)Enum.Parse<COMMAND>(alias.CanonicalName),
-            failMessage => new Failure(failMessage)
-        );
+        if (match.TryPickT0(out var alias, out var failure))
+        {
+            return Enum.Parse<COMMAND>(alias.CanonicalName);
+        }
+
+        return UnknownCommandBehavior switch
+        {
+            UnknownCommandBehavior.Ignore => OneOf<COMMAND?, Failure>.FromT0(null),
+            UnknownCommandBehavior.Reject => OneOf<COMMAND?, Failure>.FromT1(failure),
+            _ => throw new ArgumentOutOfRangeException(
+                $"Unkown {nameof(UnknownCommandBehavior)}: {UnknownCommandBehavior}")
+        };
     }
 }

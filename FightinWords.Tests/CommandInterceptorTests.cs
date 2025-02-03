@@ -27,4 +27,24 @@ public class CommandInterceptorTests
                    .Should()
                    .Be(DayOfWeek.Wednesday);
     }
+
+    [Test]
+    public void RejectsUnknownCommands(
+        [Values("@", "", "//")] string prefix
+    )
+    {
+        var interceptor = new CommandInterceptor<DayOfWeek>(
+            new Dictionary<DayOfWeek, IEnumerable<string>>()
+            {
+                [DayOfWeek.Monday]    = [],
+                [DayOfWeek.Wednesday] = ["humpday"]
+            }
+        )
+        {
+            Prefix = prefix
+        };
+
+        var actualResult = interceptor.ScreenInput(prefix + "yolo");
+        TestHelpers.AssertEquals(actualResult.IsT1, true);
+    }
 }
