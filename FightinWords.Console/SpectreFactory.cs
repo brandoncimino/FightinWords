@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using FightinWords.Console.Rendering;
 using FightinWords.Submissions;
 using FightinWords.WordLookup;
 using Spectre.Console;
@@ -24,6 +25,12 @@ public static partial class SpectreFactory
         public Decoration HighlightDecoration { get; init; } =
             Decoration.Bold | Decoration.Italic | Decoration.Underline;
 
+        public Icons Icons { get; init; } = new();
+
+        public Style NeutralFeedback  { get; init; } = Style.Plain;
+        public Style PositiveFeedback { get; init; } = Color.Green;
+        public Style NegativeFeedback { get; init; } = Color.DarkRed;
+
         public Style GetLetterStyle(Phonology phonology)
         {
             var phonologicalStyle = phonology switch
@@ -47,6 +54,19 @@ public static partial class SpectreFactory
 
             return style;
         }
+    }
+
+    public readonly record struct Icons()
+    {
+        public const string ErrorDefault     = "❌";
+        public const string RejectionDefault = "👎";
+        public const string SuccessDefault   = "✅";
+        public const string StaleWordDefault = "🔁";
+
+        public string Error     { get; init; } = ErrorDefault;
+        public string Rejection { get; init; } = RejectionDefault;
+        public string Success   { get; init; } = SuccessDefault;
+        public string StaleWord { get; init; } = StaleWordDefault;
     }
 
     public static IRenderable RenderLetterPool(
@@ -105,6 +125,32 @@ public static partial class SpectreFactory
         table.AddColumns("✅".EscapeMarkup(), "❌".EscapeMarkup(), "Previous");
         table.AddRow(new Rows(goodCol), new Rows(badCol), RenderPreviousJudgement(mostRecentSuccess, theme));
         return table;
+    }
+
+    public static Columns RenderScoreBoard(
+        IDictionary<LangWord, SubmissionManager.WordRating?> submissions,
+        IReadOnlyList<Judgement>                             judgementHistory,
+        LetterPoolDisplay                                    letterPoolDisplay,
+        SharedResources                                      sharedResources
+    )
+    {
+        var letterPool = RenderLetterPool(
+            sharedResources.GamePlan.ProgenitorPool,
+            letterPoolDisplay.CurrentDisplay,
+            sharedResources
+        );
+
+        var submissionDisplay = RenderSubmissions(
+            submissions,
+            judgementHistory,
+            sharedResources.GamePlan.Theme
+        );
+
+        var cols = HandleNulls([letterPool, submissionDisplay], NullHandling.Skip);
+        return new Columns(cols)
+        {
+            Expand = false
+        };
     }
 
     private static Judgement? MostRecentSuccess(IReadOnlyList<Judgement> judgementHistory)
@@ -192,5 +238,26 @@ public static partial class SpectreFactory
         var boldItalicsReplaced = BoldItalicRegex().Replace(linksReplaced, @"[$1]$2[/]");
         var spansRemoved        = SpanRegex().Replace(boldItalicsReplaced, "");
         return new Markup(spansRemoved);
+    }
+
+    public enum NullHandling
+    {
+        Error,
+        Skip,
+        Empty,
+    }
+
+    public static IEnumerable<IRenderable> HandleNulls(
+        this IEnumerable<IRenderable?> renderables,
+        NullHandling                   nullHandling
+    )
+    {
+        return (nullHandling switch
+        {
+            NullHandling.Error => renderables.Select(it => Preconditions.RequireNotNull(it)),
+            NullHandling.Skip  => renderables.Where(it => it is not null),
+            NullHandling.Empty => renderables.Select(it => it ?? Text.Empty),
+            _                  => throw new ArgumentOutOfRangeException(nameof(nullHandling), nullHandling, null)
+        })!;
     }
 }
