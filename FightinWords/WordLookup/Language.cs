@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Concurrent;
-using System.Globalization;
-using System.Text;
+﻿using System.Globalization;
 
 namespace FightinWords.WordLookup;
 
+/// <summary>
+/// A completely arbitrary bunch of ISO languages.
+/// </summary>
 public enum Language
 {
     English,
@@ -207,7 +207,7 @@ public static class IsoLanguageExtensions
         return language switch
         {
             Language.Other => System.Globalization.CultureInfo.InvariantCulture,
-            _ => System.Globalization.CultureInfo.GetCultureInfo(language.IsoLanguageCode())
+            _              => System.Globalization.CultureInfo.GetCultureInfo(language.IsoLanguageCode())
         };
     }
 }
