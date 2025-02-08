@@ -8,17 +8,22 @@ public sealed class LetterPoolConfigScreener : ISubmissionScreener<Word, ILetter
 {
     public const int MinimumPoolSize = 5;
 
-    private static readonly string Recourse = $"""
-                                               You must enter either:
-                                                 ● The number (≥ {MinimumPoolSize}) of random letters you'd like to play with.
-                                                 ● The specific ({MinimumPoolSize} or more) letters you'd like to play with.
-                                               """;
+    public static readonly string Instructions = $"""
+                                                  Please enter either:
+                                                    ● The number (≥ {MinimumPoolSize}) of random letters you'd like to play with.
+                                                    ● The specific ({MinimumPoolSize} or more) letters you'd like to play with.
+                                                  """;
+
+    public UserFeedback GetPrompt()
+    {
+        return new UserFeedback(UserFeedback.FeedbackTone.Neutral, "✍️", Instructions);
+    }
 
     private static Failure GetFailure(string specificError)
     {
         return $"""
                 ❌ {specificError}
-                {Recourse}
+                {Instructions}
                 """;
     }
 
