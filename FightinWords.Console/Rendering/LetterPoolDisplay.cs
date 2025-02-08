@@ -1,6 +1,6 @@
 ﻿using FightinWords.WordLookup;
 
-namespace FightinWords.Console;
+namespace FightinWords.Console.Rendering;
 
 public sealed class LetterPoolDisplay
 {
@@ -28,7 +28,7 @@ public sealed class LetterPoolDisplay
     private readonly Comparison<Grapheme> _alphabetical;
     private readonly Comparison<Grapheme> _phonological;
 
-    public LetterPoolDisplay(SharedResources sharedResources)
+    private LetterPoolDisplay(SharedResources sharedResources)
     {
         _sharedResources = sharedResources;
         _currentDisplay  = _sharedResources.GamePlan.ProgenitorPool.ToArray();
