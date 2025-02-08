@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using OneOf;
 
 namespace FightinWords.Console;
@@ -67,5 +68,16 @@ public readonly struct OfThree<A, B, C>
             bb => b(bb),
             cc => c(cc)
         );
+    }
+
+    public override string ToString()
+    {
+        return HasWhich switch
+        {
+            WhichOfThree.A => $"🅰️ {_a}",
+            WhichOfThree.B => $"🅱️ {_b}",
+            WhichOfThree.C => $"©️ {_c}",
+            _              => throw new UnreachableException()
+        };
     }
 }
