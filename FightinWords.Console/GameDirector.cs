@@ -14,11 +14,16 @@ namespace FightinWords.Console;
 public sealed class GameDirector
 {
     private readonly InputReader                     _inputReader = new();
-    private          OneOf<GamePlanner, GameReferee> _gameState;
+    private          OneOf<GamePlanner, GameReferee> _gameState   = new GamePlanner();
     public required  IAnsiConsole                    Console { get; init; }
     public           SpectreFactory.Theme            Theme   { get; init; } = new();
 
     private UserFeedback? _userFeedback;
+
+    public GameDirector()
+    {
+        _userFeedback = _gameState.AsT0.LetterPoolConfigScreener.GetPrompt();
+    }
 
     #region Start & End
 
@@ -66,6 +71,8 @@ public sealed class GameDirector
             it => HandleWordInput(it),
             failure => failure
         );
+
+        System.Console.WriteLine($"Processed result: {result}");
 
         return result.Switch(
             OneOf<UserFeedback, FinalResults>.FromT0,
