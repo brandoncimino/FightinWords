@@ -1,25 +1,24 @@
-﻿using System.Collections.Immutable;
+﻿using OneOf.Types;
 
 namespace FightinWords.Console.LetterPools;
 
 /// <summary>
 /// A <see cref="ILetterPool"/> that randomly picks a <i>(lowercase)</i> letter from <c>a</c> to <c>z</c> with equal weight.
 /// </summary>
-public sealed class RandomLetterPool(int poolSize) : ILetterPool
+public sealed class RandomLetterPool : RandomPoolBase<None>
 {
-    public int PoolSize { get; } = poolSize;
+    public override None CreateNewState() => default;
 
-    public Word LockIn(Random random)
+    public override Grapheme GetRandomLetter(Random random, None _)
     {
-        var builder = ImmutableArray.CreateBuilder<Grapheme>(PoolSize);
+        var randomChar     = (char)random.Next('a', 'z' + 1);
+        var randomGrapheme = Grapheme.Parse(randomChar);
+        return randomGrapheme;
+    }
 
-        for (int i = 0; i < PoolSize; i++)
-        {
-            var randomChar     = (char)random.Next('a', 'z' + 1);
-            var randomGrapheme = Grapheme.Parse(randomChar);
-            builder.Add(randomGrapheme);
-        }
-
-        return builder.MoveToImmutable();
+    public override Grapheme ExchangeForVowel(Random random, None _, Grapheme toBeExchanged)
+    {
+        var vowelChar = Vowels[random.Next(Vowels.Length)];
+        return Grapheme.Parse(vowelChar);
     }
 }

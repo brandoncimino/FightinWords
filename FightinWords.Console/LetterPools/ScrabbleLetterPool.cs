@@ -4,15 +4,20 @@ using FightinWords.WordLookup;
 
 namespace FightinWords.Console.LetterPools;
 
-public sealed record ScrabbleLetterPool(Language Language, int PoolSize) : ILetterPool
+public sealed class ScrabbleLetterPool : RandomPoolBase<TileBag<Grapheme>>
 {
-    public Word LockIn(Random random)
+    public override TileBag<Grapheme> CreateNewState()
     {
-        Preconditions.Require(PoolSize > 0);
+        return CreateScrabbleTiles(Language);
+    }
 
-        var scrabbleTiles = CreateScrabbleTiles(Language);
-        var chosenTiles   = scrabbleTiles.DrawX(random, PoolSize);
-        return new Word(chosenTiles);
+    public override Grapheme GetRandomLetter(Random random, TileBag<Grapheme> tileBag) => tileBag.DrawOne(random);
+
+    public override Grapheme ExchangeForVowel(Random random, TileBag<Grapheme> tileBag, Grapheme toBeExchanged)
+    {
+        var vowel = tileBag.DrawOne(random, it => it.GetPhonology(Language) is Phonology.Vowel or Phonology.Semivowel);
+        tileBag.Add(toBeExchanged);
+        return vowel;
     }
 
     private static TileBag<Grapheme> CreateScrabbleTiles(Language language)
