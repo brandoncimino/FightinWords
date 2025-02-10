@@ -16,14 +16,18 @@ public class TileBag<T> where T : notnull
     /// <returns>an <b>immutable snapshot</b> of my <see cref="_tileCounts"/></returns>
     public ImmutableDictionary<T, int> GetTileCounts() => _tileCounts.ToImmutableDictionary();
 
-    public TileBag(IDictionary<T, int> tileCounts)
+    public TileBag(IEnumerable<KeyValuePair<T, int>> tileCounts)
     {
-        Preconditions.Require(tileCounts.Values.All(it => it >= 0),
-            _condition: "You cannot have a negative number of tiles!");
-
         this._tileCounts = tileCounts
-                           .Where(kvp => kvp.Value >= 0)
+                           .Where(kvp => kvp.Value switch
+                           {
+                               < 0 => throw new ArgumentOutOfRangeException(
+                                   $"You cannot have a negative number of tiles: {kvp}!"),
+                               > 0 => true,
+                               0   => false
+                           })
                            .ToDictionary();
+
         this.TotalTiles = _tileCounts.Values.Sum();
     }
 
@@ -35,20 +39,45 @@ public class TileBag<T> where T : notnull
         }
     }
 
-    private T DrawTile(int tileIndex)
+    private T DrawByIndex(int tileIndex, Func<T, bool> predicate)
     {
         ThrowIfEmpty();
         Preconditions.Require(tileIndex >= 0 && tileIndex < TotalTiles);
 
-        var tile = GetKeyByWeight(_tileCounts, tileIndex);
+        var tile = GetKeyByWeight(_tileCounts, tileIndex, predicate);
         _tileCounts[tile] -= 1;
         TotalTiles        -= 1;
         return tile;
     }
 
+    public T DrawByTile(T tile)
+    {
+        _tileCounts[tile] -= 1;
+        return tile;
+    }
+
+    public TileBag<T> Add(T tile)
+    {
+        if (_tileCounts.TryAdd(tile, 1) is false)
+        {
+            _tileCounts[tile] += 1;
+        }
+
+        return this;
+    }
+
     public T DrawOne(Random random)
     {
-        return DrawTile(random.Next(TotalTiles));
+        return DrawByIndex(random.Next(TotalTiles), static _ => true);
+    }
+
+    public T DrawOne(Random random, Func<T, bool> predicate)
+    {
+        var totalMatchingPredicate = _tileCounts
+                                     .Where(kvp => predicate(kvp.Key))
+                                     .Sum(kvp => kvp.Value);
+        var tileIndex = random.Next(totalMatchingPredicate);
+        return DrawByIndex(tileIndex, predicate);
     }
 
     public ValueArray<T> DrawX(Random random, [NonNegativeValue] int drawAmount)
@@ -70,13 +99,18 @@ public class TileBag<T> where T : notnull
         return arrayBuilder.MoveToImmutable();
     }
 
-    private static K GetKeyByWeight<K>(IDictionary<K, int> weightedBag, int weight)
+    private static K GetKeyByWeight<K>(IDictionary<K, int> weightedBag, int weight, Func<K, bool> predicate)
     {
         Debug.Assert(weight >= 0);
         var weightLeft = weight;
 
         foreach (var (k, w) in weightedBag)
         {
+            if (predicate(k) is false)
+            {
+                continue;
+            }
+
             if (weightLeft < w)
             {
                 return k;
@@ -86,6 +120,6 @@ public class TileBag<T> where T : notnull
         }
 
         throw new ArgumentOutOfRangeException(nameof(weight), weight,
-            $"Greater than the total weight in the bag, {weightedBag.Values.Sum()}!");
+            $"Greater than the total weight in the bag, {weightedBag.Where(kvp => predicate(kvp.Key)).Sum(kvp => kvp.Value)}!");
     }
 }
