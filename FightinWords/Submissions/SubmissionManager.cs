@@ -32,8 +32,7 @@ public class SubmissionManager
 
     public required IWordLookup WordLookup { get; init; }
 
-    public required ISubmissionScreener<string, Word> SubmissionScreener { get; init; }
-
+    public required ISubmissionScreener<Word, Word> SubmissionScreener { get; init; }
 
     /// <summary>
     /// TODO: Having both this and <see cref="WiktionaryClient._responseCache"/> is redundant.
@@ -44,26 +43,21 @@ public class SubmissionManager
     /// The combined results from the <see cref="IScorer"/> and <see cref="IWordLookup"/> for a given word,
     /// which are always the same, regardless of the state of the game.
     /// </summary>
-    public sealed record WordRating(int Points, ImmutableArray<WordDefinition> Definitions);
+    public sealed record WordRating(int Points, ValueArray<WordDefinition> Definitions);
 
     private readonly History<Judgement> _judgementHistory = new(10);
 
     [MustUseReturnValue]
-    public OneOf<Judgement, Failure> SubmitRawInput(
-        string   rawInput,
-        Language language
-    )
+    public OneOf<Judgement, Failure> SubmitWord(Word word, Language language)
     {
-        var validated = SubmissionScreener.ScreenInput(rawInput);
-        return validated.MapT0(word => SubmitWord(word, language));
-    }
+        if (SubmissionScreener.ScreenInput(word).TryPickT0(out var screenedWord, out var failure))
+        {
+            var judgement = JudgeWord(screenedWord, language);
+            _judgementHistory.Record(judgement);
+            return judgement;
+        }
 
-    [MustUseReturnValue]
-    public Judgement SubmitWord(Word word, Language language)
-    {
-        var judgement = JudgeWord(word, language);
-        _judgementHistory.Record(judgement);
-        return judgement;
+        return failure;
     }
 
     [MustUseReturnValue]

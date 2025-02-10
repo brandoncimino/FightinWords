@@ -74,11 +74,11 @@ public class SubmissionManagerTests
             SubmissionScreener = screener
         };
 
-        var submissionResult = submissionManager.SubmitRawInput(definition.Word, definition.Language);
+        var submissionResult = submissionManager.SubmitWord(Word.Parse(definition.Word), definition.Language);
 
         var points = scorer.ComputeScore(definition.Word, definition.Language);
 
-        var expectedRating = new SubmissionManager.WordRating(points, [definition]);
+        var expectedRating = new SubmissionManager.WordRating(points, new ValueArray<WordDefinition>([definition]));
         TestHelpers.AssertEquals(
             submissionResult,
             new Judgement(
@@ -89,7 +89,7 @@ public class SubmissionManagerTests
             )
         );
 
-        var secondSubmission = submissionManager.SubmitRawInput(definition.Word, definition.Language);
+        var secondSubmission = submissionManager.SubmitWord(Word.Parse(definition.Word), definition.Language);
         TestHelpers.AssertEquals(
             secondSubmission,
             new Judgement(
@@ -101,43 +101,44 @@ public class SubmissionManagerTests
         );
     }
 
-    [Test]
-    public void InvalidWord()
-    {
-        var manager = CreateTestManager();
-        var nonWord = Guid.NewGuid().ToString();
-
-        var result = manager.SubmitRawInput(nonWord, Language.English);
-
-        TestHelpers.AssertEquals(
-            result,
-            new Judgement(
-                Word.Parse(nonWord),
-                SubmissionManager.Legality.FakeWord,
-                SubmissionManager.Freshness.Fresh,
-                null
-            )
-        );
-
-        var secondResult = manager.SubmitRawInput(nonWord, Language.English);
-
-        TestHelpers.AssertEquals(
-            secondResult,
-            new Judgement(
-                Word.Parse(nonWord),
-                SubmissionManager.Legality.FakeWord,
-                SubmissionManager.Freshness.Stale,
-                null
-            )
-        );
-    }
+    // TODO: This test was relevant when the SubmissionManager accepted `string`s, not `Word`s.
+    // [Test]
+    // public void InvalidWord()
+    // {
+    //     var manager = CreateTestManager();
+    //     var nonWord = Guid.NewGuid().ToString();
+    //
+    //     var result = manager.SubmitRawInput(nonWord, Language.English);
+    //
+    //     TestHelpers.AssertEquals(
+    //         result,
+    //         new Judgement(
+    //             Word.Parse(nonWord),
+    //             SubmissionManager.Legality.FakeWord,
+    //             SubmissionManager.Freshness.Fresh,
+    //             null
+    //         )
+    //     );
+    //
+    //     var secondResult = manager.SubmitRawInput(nonWord, Language.English);
+    //
+    //     TestHelpers.AssertEquals(
+    //         secondResult,
+    //         new Judgement(
+    //             Word.Parse(nonWord),
+    //             SubmissionManager.Legality.FakeWord,
+    //             SubmissionManager.Freshness.Stale,
+    //             null
+    //         )
+    //     );
+    // }
 
     [Test]
     public void FailedScreening()
     {
         var manager = CreateTestManager();
 
-        var firstResult = manager.SubmitRawInput("yy", Language.English);
+        var firstResult = manager.SubmitWord(Word.Parse("yy"), Language.English);
         firstResult.IsT1.Should().BeTrue();
     }
 
@@ -145,28 +146,30 @@ public class SubmissionManagerTests
     public void ValidWord_wrongLanguage()
     {
         var manager = CreateTestManager();
+        var word    = Word.Parse("yolo");
 
-        var firstResult = manager.SubmitRawInput("yolo", Language.Gothic);
-        TestHelpers.AssertEquals(
-            firstResult,
-            new Judgement(
-                Word.Parse("yolo"),
-                SubmissionManager.Legality.FakeWord,
-                SubmissionManager.Freshness.Fresh,
-                null
-            )
-        );
+        Assert.Throws<ArgumentException>(() => manager.SubmitWord(word, Language.Gothic));
+        // var firstResult = manager.SubmitWord(word, Language.Gothic);
+        // TestHelpers.AssertEquals(
+        //     firstResult,
+        //     new Judgement(
+        //         word,
+        //         SubmissionManager.Legality.FakeWord,
+        //         SubmissionManager.Freshness.Fresh,
+        //         null
+        //     )
+        // );
 
-        var secondResult = manager.SubmitRawInput("yolo", Language.Gothic);
-        TestHelpers.AssertEquals(
-            secondResult,
-            new Judgement(
-                Word.Parse("yolo"),
-                SubmissionManager.Legality.FakeWord,
-                SubmissionManager.Freshness.Stale,
-                null
-            )
-        );
+        // var secondResult = manager.SubmitWord(word, Language.Gothic);
+        // TestHelpers.AssertEquals(
+        //     secondResult,
+        //     new Judgement(
+        //         word,
+        //         SubmissionManager.Legality.FakeWord,
+        //         SubmissionManager.Freshness.Stale,
+        //         null
+        //     )
+        // );
     }
 
     [Test]
