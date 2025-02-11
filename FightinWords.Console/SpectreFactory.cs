@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using FightinWords.Console.Rendering;
+﻿using FightinWords.Console.Rendering;
 using FightinWords.Submissions;
 using FightinWords.WordLookup;
 using Spectre.Console;
@@ -180,7 +179,7 @@ public static partial class SpectreFactory
         return new Columns(
             Markup.FromInterpolated($"{definition.Word}",           Style.Plain),
             Markup.FromInterpolated($"({definition.PartOfSpeech})", theme.PartOfSpeech),
-            HtmlToMarkup(definition.Definition)
+            new Markup(HtmlToSpectreMarkup.Convert(definition.Definition))
         );
     }
 
@@ -220,24 +219,6 @@ public static partial class SpectreFactory
                           .ThenBy(it => it.Word.ToString(), StringComparer.InvariantCulture)
                           .ThenBy(it => it.Rating?.Points)
                           .Select(it => RenderSubmissionRow(it, it.Word == previousSubmission, theme));
-    }
-
-    [GeneratedRegex("""<\s*a.*?href\s*?=\s*?"(?<dest>.*?)".*?>(?<text>.*?)</a>""")]
-    private static partial Regex HyperlinkRegex();
-
-    [GeneratedRegex("""<\s*([ib]).*?>(.*)<\s*/\s*\1\s*>""")]
-    private static partial Regex BoldItalicRegex();
-
-    [GeneratedRegex("""</?\s*span.*?\s*/?\s*>""")]
-    private static partial Regex SpanRegex();
-
-    private static Markup HtmlToMarkup(string html)
-    {
-        var markupEscaped       = html.EscapeMarkup();
-        var linksReplaced       = HyperlinkRegex().Replace(markupEscaped, @"[link=$1]$2[/]");
-        var boldItalicsReplaced = BoldItalicRegex().Replace(linksReplaced, @"[$1]$2[/]");
-        var spansRemoved        = SpanRegex().Replace(boldItalicsReplaced, "");
-        return new Markup(spansRemoved);
     }
 
     public enum NullHandling
