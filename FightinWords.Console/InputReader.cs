@@ -16,8 +16,8 @@ public class InputReader
     public Screener<string, Command?> CommandInterceptor { get; init; } = new CommandInterceptor<Command>(
         new Dictionary<Command, IEnumerable<string>>()
         {
-            [Command.Exit]  = ["quit"],
-            [Command.Start] = []
+            [Command.Exit]  = ["quit", "end"],
+            [Command.Start] = ["begin"]
         }).ScreenInput;
 
     public Screener<string, Word> WordParser { get; init; } = ParseWord;
