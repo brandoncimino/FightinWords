@@ -20,10 +20,12 @@ public sealed class LetterPoolDisplay
         Random,
     }
 
+    private static readonly int PossibleLettersSortings = Enum.GetValues(typeof(LetterSorting)).Length;
+
     private readonly SharedResources _sharedResources;
     private readonly Grapheme[]      _currentDisplay;
     public           IList<Grapheme> CurrentDisplay => _currentDisplay.AsReadOnly();
-    private          LetterSorting   _currentSorting = LetterSorting.AsOriginallyGiven;
+    public           LetterSorting   CurrentSorting { get; private set; }
 
     private readonly Comparison<Grapheme> _alphabetical;
     private readonly Comparison<Grapheme> _phonological;
@@ -52,7 +54,7 @@ public sealed class LetterPoolDisplay
 
     public LetterPoolDisplay Sort(LetterSorting newStyle)
     {
-        if (newStyle == _currentSorting && newStyle is not LetterSorting.Random)
+        if (newStyle == CurrentSorting && newStyle is not LetterSorting.Random)
         {
             return this;
         }
@@ -75,7 +77,13 @@ public sealed class LetterPoolDisplay
                 throw new ArgumentOutOfRangeException(nameof(newStyle), newStyle, null);
         }
 
-        _currentSorting = newStyle;
+        CurrentSorting = newStyle;
         return this;
+    }
+
+    public LetterPoolDisplay SortNext()
+    {
+        var nextSorting = ((int)CurrentSorting + 1) % PossibleLettersSortings;
+        return Sort((LetterSorting)nextSorting);
     }
 }
