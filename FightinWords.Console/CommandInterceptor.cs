@@ -6,7 +6,7 @@ namespace FightinWords.Console;
 /// <summary>
 /// Matches user input to the most appropriate <typeparamref name="COMMAND"/>.
 /// </summary>
-public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, COMMAND?>
+public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, CommandLine<COMMAND>?>
     where COMMAND : struct, Enum
 {
     /// <summary>
@@ -31,7 +31,26 @@ public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, CO
         );
     }
 
-    public OneOf<COMMAND?, Failure> ScreenInput(string rawSubmission)
+    public OneOf<CommandLine<COMMAND>?, Failure> ScreenInput(string rawSubmission)
+    {
+        var splitSubmission =
+            rawSubmission.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (splitSubmission is [var command, .. var args])
+        {
+            var commandAlone = ScreenCommandAlone(command);
+            return commandAlone switch
+            {
+                { IsT0: true, AsT0 : { } cmd }     => new CommandLine<COMMAND>(cmd, args.ToValueArray()),
+                { IsT0: true, AsT0 : null }        => null,
+                { IsT0: false, AsT1: var failure } => failure
+            };
+        }
+
+        throw new ArgumentException(
+            $"The {nameof(rawSubmission)} argument was empty and/or whitespace! (`{rawSubmission}`)");
+    }
+
+    private OneOf<COMMAND?, Failure> ScreenCommandAlone(string rawSubmission)
     {
         rawSubmission = rawSubmission.Trim().ToLowerInvariant();
 
@@ -52,9 +71,12 @@ public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, CO
         return UnknownCommandBehavior switch
         {
             UnknownCommandBehavior.Ignore => OneOf<COMMAND?, Failure>.FromT0(null),
-            UnknownCommandBehavior.Reject => OneOf<COMMAND?, Failure>.FromT1(failure),
+            UnknownCommandBehavior.Reject => OneOf<COMMAND?, Failure>.FromT1(failure.GetMessage()),
             _ => throw new ArgumentOutOfRangeException(
                 $"Unkown {nameof(UnknownCommandBehavior)}: {UnknownCommandBehavior}")
         };
     }
 }
+
+public readonly record struct CommandLine<COMMAND>(COMMAND Command, ValueArray<string> Arguments)
+    where COMMAND : struct, Enum;
