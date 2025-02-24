@@ -12,6 +12,17 @@ public readonly record struct ValueArray<T>(ImmutableArray<T> Values) : IEnumera
 {
     public static readonly ValueArray<T> Empty = ImmutableArray<T>.Empty;
 
+    /// <inheritdoc cref="ImmutableArray{T}.Length"/>
+    /// <remarks>
+    /// I didn't want to copy methods from <see cref="ImmutableArray{T}"/> into <see cref="ValueArray{T}"/> that would be accessible easily via <see cref="Values"/>,
+    /// but <see cref="Length"/> and <see cref="ValueArray{T}.this"/> are included to enable <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/patterns#list-patterns">list patterns</a>.
+    /// </remarks>
+    public int Length => Values.Length;
+
+    /// <inheritdoc cref="ImmutableArray{T}.this"/>
+    /// <remarks><inheritdoc cref="Length"/></remarks>
+    public T this[int index] => Values[index];
+
     public bool Equals(ValueArray<T> other)
     {
         return other.Values.IsDefaultOrEmpty ? Values.IsDefaultOrEmpty : Values.SequenceEqual(other.Values);
