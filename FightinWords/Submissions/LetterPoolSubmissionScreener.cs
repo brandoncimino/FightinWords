@@ -2,30 +2,21 @@
 
 namespace FightinWords.Submissions;
 
-public sealed class LetterPoolSubmissionScreener : ISubmissionScreener<string, Word>
+public sealed class LetterPoolSubmissionScreener : ISubmissionScreener<Word, Word>
 {
     public required Word LetterPool        { get; init; }
     public required int  MinimumWordLength { get; init; }
 
-    public OneOf<Word, Failure> ScreenInput(string rawInput)
+    public OneOf<Word, Failure> ScreenInput(Word rawInput)
     {
-        string userInput = rawInput;
-        userInput = userInput.ToLower();
-
-        if (Word.TryParse(userInput, out var result,
-                StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries) == false)
-        {
-            return new Failure("You entered some weird junk that we couldn't parse.");
-        }
-
-        if (result.Length < MinimumWordLength)
+        if (rawInput.Length < MinimumWordLength)
         {
             return new Failure($"You must enter at least {MinimumWordLength} letters.");
         }
 
         var remainingPool = LetterPool.ToList();
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (var letter in result)
+        foreach (var letter in rawInput)
         {
             if (remainingPool.Remove(letter) == false)
             {
@@ -35,6 +26,6 @@ public sealed class LetterPoolSubmissionScreener : ISubmissionScreener<string, W
             }
         }
 
-        return result;
+        return rawInput;
     }
 }
