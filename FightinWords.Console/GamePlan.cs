@@ -11,7 +11,7 @@ public sealed record GamePlan
     public required Word                 ProgenitorPool    { get; init; }
     public required TimeSpan?            TimeLimit         { get; init; } = null;
     public          SpectreFactory.Theme Theme             { get; init; } = new();
-    public          int                  MinimumWordLength { get; init; } = 3;
+    public          int                  MinimumWordLength { get; init; } = GamePlanner.DefaultMinimumWordLength;
     public          string?              RandomSeed        { get; init; } = null;
 
     public static void Validate(GamePlan gamePlan)
