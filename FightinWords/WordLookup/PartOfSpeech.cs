@@ -6,6 +6,7 @@ public enum PartOfSpeech
     Verb,
     Adjective,
     Conjunction,
+
     /// <summary>
     /// Some weird thing that Wiktionary returned for the Gothic usage of "and":
     /// <code><![CDATA[
@@ -21,12 +22,15 @@ public enum PartOfSpeech
     /// ]]></code>
     /// </summary>
     Romanization,
+
     /// <summary>
     /// Represents multiple words (even if its only one word itself), such as <a href="https://en.wiktionary.org/wiki/YOLO#English">YOLO</a>.
     /// </summary>
     Phrase,
+
     /// <summary>
     /// Stuff like the <a href="https://en.wiktionary.org/wiki/sag#Translingual">"sag" language code</a>.
     /// </summary>
     Symbol,
+    Interjection
 }
