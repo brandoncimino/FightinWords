@@ -14,10 +14,10 @@ public sealed class LetterPoolDisplay
 
     public enum LetterSorting
     {
-        AsOriginallyGiven,
-        Alphabetical,
-        Phonological,
-        Random,
+        [AliasMatcher.Alias("og")]      OriginallyGiven,
+        [AliasMatcher.Alias("abc")]     Alphabetical,
+        [AliasMatcher.Alias("vowels")]  Phonological,
+        [AliasMatcher.Alias("shuffle")] Random,
     }
 
     private static readonly int PossibleLettersSortings = Enum.GetValues(typeof(LetterSorting)).Length;
@@ -70,7 +70,7 @@ public sealed class LetterPoolDisplay
             case LetterSorting.Phonological:
                 _currentDisplay.AsSpan().Sort(_phonological);
                 break;
-            case LetterSorting.AsOriginallyGiven:
+            case LetterSorting.OriginallyGiven:
                 _sharedResources.GamePlan.ProgenitorPool.Letters.Values.CopyTo(_currentDisplay);
                 break;
             default:
