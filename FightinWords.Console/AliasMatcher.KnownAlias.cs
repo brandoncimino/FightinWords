@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Frozen;
 using System.Text;
 
 namespace FightinWords.Console;
@@ -8,19 +8,16 @@ public sealed partial class AliasMatcher
     /// <summary>
     /// Contains a <see cref="CanonicalName"/> and possible <see cref="Aliases"/> it is allowed to also go by.
     /// </summary>
-    public sealed class KnownAlias
+    public sealed class KnownAlias : IEquatable<KnownAlias>
     {
-        public string                   CanonicalName { get; }
-        public ImmutableHashSet<string> Aliases       { get; }
+        public string            CanonicalName { get; }
+        public FrozenSet<string> Aliases       { get; }
 
         public KnownAlias(string canonicalName, IEnumerable<string> aliases)
         {
             CanonicalName = ValidateName(canonicalName);
-            Aliases = aliases
-                      .Select(ValidateName)
-                      .ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var builder = ImmutableHashSet.CreateBuilder<string>(StringComparer.OrdinalIgnoreCase);
+            var builder = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var alias in aliases)
             {
                 if (builder.Add(alias) is false)
@@ -28,6 +25,8 @@ public sealed partial class AliasMatcher
                     throw new ArgumentException($"The alias `{alias}` is not unique!", nameof(aliases));
                 }
             }
+
+            Aliases = builder.ToFrozenSet();
 
             if (Aliases.TryGetValue(CanonicalName, out var matched))
             {
@@ -94,5 +93,33 @@ public sealed partial class AliasMatcher
 
             return true;
         }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            PrintMembers(sb);
+            return sb.ToString();
+        }
+
+        public bool Equals(KnownAlias? other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (other is null)
+            {
+                return true;
+            }
+
+            return CanonicalName.Equals(other?.CanonicalName)
+                   && Aliases.SetEquals(other.Aliases);
+        }
+
+        public override bool Equals(object? obj) =>
+            ReferenceEquals(this, obj) || obj is KnownAlias other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(CanonicalName, Aliases);
     }
 }
