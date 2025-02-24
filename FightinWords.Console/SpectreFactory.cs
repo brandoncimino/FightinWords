@@ -6,7 +6,7 @@ using Spectre.Console.Rendering;
 
 namespace FightinWords.Console;
 
-public static partial class SpectreFactory
+public static class SpectreFactory
 {
     public readonly record struct Theme()
     {
