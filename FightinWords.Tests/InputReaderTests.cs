@@ -24,7 +24,7 @@ public class InputReaderTests
     [Test]
     public void InputReader_PrefersCommands()
     {
-        var expectedCommand = Command.Start;
+        var expectedCommand = new CommandLine<Command>(Command.Start, []);
 
         var reader = new InputReader()
         {

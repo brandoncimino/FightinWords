@@ -1,4 +1,5 @@
-﻿using FightinWords.Submissions;
+﻿using System.Diagnostics;
+using FightinWords.Submissions;
 using FightinWords.WordLookup;
 using OneOf;
 
@@ -29,14 +30,20 @@ public sealed class LetterPoolConfigScreener : ISubmissionScreener<Word, ILetter
 
     public OneOf<ILetterPool, Failure> ScreenInput(Word rawSubmission)
     {
+        Debug.WriteLine($"Screening for Letter Pool configuration; {nameof(rawSubmission)}: {rawSubmission}");
         if (int.TryParse(rawSubmission.ToString(), out var poolSize))
         {
+            Debug.WriteLine($"User input was an integer: {poolSize}");
             if (poolSize < MinimumPoolSize)
             {
                 return GetFailure($"{poolSize} is less than the minimum pool size of {MinimumPoolSize}.");
             }
 
-            return new ScrabbleLetterPool(Language.English, poolSize);
+            return new ScrabbleLetterPool()
+            {
+                Language = Language.English,
+                PoolSize = poolSize
+            };
         }
 
         if (rawSubmission.Length < MinimumPoolSize)

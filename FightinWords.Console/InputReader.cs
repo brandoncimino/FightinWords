@@ -9,11 +9,11 @@ public class InputReader
     private readonly History<UserInput> _inputHistory = new(5);
 
     public record UserInput(
-        string                          RawInput,
-        OfThree<Command, Word, Failure> Parsed
+        string                                       RawInput,
+        OfThree<CommandLine<Command>, Word, Failure> Parsed
     );
 
-    public Screener<string, Command?> CommandInterceptor { get; init; } = new CommandInterceptor<Command>(
+    public Screener<string, CommandLine<Command>?> CommandInterceptor { get; init; } = new CommandInterceptor<Command>(
         new Dictionary<Command, IEnumerable<string>>()
         {
             [Command.Exit]  = ["quit", "end"],
