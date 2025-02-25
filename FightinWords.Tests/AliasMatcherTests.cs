@@ -58,7 +58,7 @@ public class AliasMatcherTests
 
         TestHelpers.AssertEquals(
             aliasMatcher.FindMatch("y"),
-            new AliasMatcher.Failure([yoloAlias, yoloSwagginsAlias])
+            new AliasMatcher.Failure("y", [yoloAlias, yoloSwagginsAlias])
         );
 
         TestHelpers.AssertEquals(
@@ -73,7 +73,7 @@ public class AliasMatcherTests
 
         TestHelpers.AssertEquals(
             aliasMatcher.FindMatch("swag"),
-            new AliasMatcher.Failure([]));
+            new AliasMatcher.Failure("swag", []));
     }
 
     [Test]

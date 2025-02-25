@@ -132,22 +132,25 @@ public sealed partial class AliasMatcher
 
         return partialMatches switch
         {
-            // null or []      => $"Didn't match to any of my known aliases.",
             [var onlyMatch] => onlyMatch,
-            // _               => $"Ambiguous; it matched all of: {string.Join(", ", partialMatches)}"
-            null => new Failure(ImmutableArray<KnownAlias>.Empty),
-            _    => new Failure(partialMatches.DrainToImmutable())
+            null            => new Failure(candidate.ToString(), ImmutableArray<KnownAlias>.Empty),
+            _               => new Failure(candidate.ToString(), partialMatches.DrainToImmutable())
         };
     }
 
-    public readonly record struct Failure(ImmutableArray<KnownAlias> PartialMatches)
+    public readonly record struct Failure(string Input, ValueArray<KnownAlias> PartialMatches)
     {
+        public Failure(string input, ImmutableArray<KnownAlias> partialMatches) : this(input,
+            new ValueArray<KnownAlias>(partialMatches))
+        {
+        }
+
         public string GetMessage()
         {
             return PartialMatches switch
             {
-                [] => "Didn't match any of my known aliases.",
-                _  => $"Ambiguous; it matched all of: {string.Join(", ", PartialMatches)}"
+                [] => $"`{Input}` doesn't match any of my known aliases.",
+                _  => $"`{Input}` is ambiguous; it matches all of: {string.Join(", ", PartialMatches)}"
             };
         }
     }
