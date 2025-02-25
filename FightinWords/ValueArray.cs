@@ -56,6 +56,15 @@ public readonly record struct ValueArray<T>(ImmutableArray<T> Values) : IEnumera
     {
         return Values.IsDefaultOrEmpty ? Enumerable.Empty<T>().GetEnumerator() : Values.AsEnumerable().GetEnumerator();
     }
+
+    public override string ToString()
+    {
+        return Values switch
+        {
+            [] => "[]",
+            _  => $"[{string.Join(", ", Values)}]"
+        };
+    }
 }
 
 public static class ValueArrayExtensions
