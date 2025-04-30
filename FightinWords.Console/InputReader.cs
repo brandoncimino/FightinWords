@@ -4,21 +4,16 @@ using OneOf;
 
 namespace FightinWords.Console;
 
-public class InputReader
+public class InputReader<COMMAND> where COMMAND : struct, Enum
 {
     private readonly History<UserInput> _inputHistory = new(5);
 
     public record UserInput(
         string                                       RawInput,
-        OfThree<CommandLine<Command>, Word, Failure> Parsed
+        OfThree<CommandLine<COMMAND>, Word, Failure> Parsed
     );
 
-    public Screener<string, CommandLine<Command>?> CommandInterceptor { get; init; } = new CommandInterceptor<Command>(
-        new Dictionary<Command, IEnumerable<string>>()
-        {
-            [Command.Exit]  = ["quit", "end"],
-            [Command.Start] = ["begin"]
-        }).ScreenInput;
+    public Screener<string, CommandLine<COMMAND>?> CommandInterceptor { get; init; } = new CommandInterceptor<COMMAND>().ScreenInput;
 
     public Screener<string, Word> WordParser { get; init; } = ParseWord;
 

@@ -1,34 +1,25 @@
-﻿using FightinWords;
+﻿using System.Text;
 using FightinWords.Console;
-using FightinWords.WordLookup;
+using Spectre.Console;
 
-var rng = new Random();
-// var pool = LetterPoolInputProcessor.ReadLine(5, rng, console);
-var pool = "yoloswaggins";
+Console.WriteLine("before app stuff");
 
-var gamePlan = new GamePlan()
+Console.OutputEncoding = Encoding.UTF8;
+
+var director = new GameDirector()
 {
-    Language       = Language.English,
-    ProgenitorPool = Word.Parse(pool),
-    TimeLimit      = TimeSpan.FromMinutes(3)
+    Console = AnsiConsole.Create(new AnsiConsoleSettings()
+    {
+        Ansi = AnsiSupport.Yes
+    }),
+    Theme = new SpectreFactory.Theme()
 };
 
-var manager = GameManager.StartGame(gamePlan, rng);
-// manager.SubmitWord("lag");
-while (true)
+FinalResults? finalResults;
+while ((finalResults = director.GameLoop()) is null)
 {
-    manager.GameLoop();
+    continue;
 }
-// var wiktionary = new WiktionaryClient();
-// var sin        = wiktionary.GetDefinitionsAsync("sin").Result;
-// Console.WriteLine(sin);
 
-// var puppyDef = wiktionary.GetDefinitionsAsync("puppy").Result;
-// Console.WriteLine(puppyDef);
-
-// while (true)
-// {
-//     console.Clear();
-//     
-//     
-// }
+AnsiConsole.MarkupLine($"Final Score: [green]{finalResults.TotalScore}[/]");
+return 0;

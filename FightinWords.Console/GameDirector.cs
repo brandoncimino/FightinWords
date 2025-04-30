@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using FightinWords.Console.Rendering;
 using FightinWords.Submissions;
 using OneOf;
 using Spectre.Console;
@@ -7,7 +9,7 @@ using Spectre.Console.Rendering;
 namespace FightinWords.Console;
 
 /// <summary>
-/// Responsible for setting up the <see cref="GamePlan"/>, transitioning the <see cref="GamePhase"/>, etc. - basically, "out-of-game" stuff.
+/// Responsible for setting up the <see cref="GamePlan"/>, transitioning the <see cref="_gameState"/>, etc. - basically, "out-of-game" stuff.
 ///<p/>
 /// This is in contrast to the <see cref="GameReferee"/>, who issues rulings, scores, etc.
 /// </summary>
@@ -54,6 +56,9 @@ public sealed class GameDirector
 
     public FinalResults? GameLoop()
     {
+        Console.Clear();
+        Console.Write(RenderFrame());
+
         var userInput = _inputReader.ReadUserInput();
 
         if (ProcessUserInput(userInput).TryPickT0(out var feedback, out var finalResults))
@@ -64,15 +69,20 @@ public sealed class GameDirector
         return finalResults;
     }
 
-    private OneOf<UserFeedback, FinalResults> ProcessUserInput(InputReader.UserInput userInput)
+    private OneOf<UserFeedback, FinalResults> ProcessUserInput(UserInput userInput)
     {
+        Debug.WriteLine($"Processing user input: {userInput} // {userInput.Parsed}");
+
         var result = userInput.Parsed.Switch(
             ExecuteCommand,
             it => HandleWordInput(it),
-            failure => failure
-        );
+            failure =>
+            {
+                Debug.WriteLine($"Passing along failure from parser: {failure}");
+                return failure;
+            });
 
-        System.Console.WriteLine($"Processed result: {result}");
+        Debug.WriteLine($"Processed result: {result}");
 
         return result.Switch(
             OneOf<UserFeedback, FinalResults>.FromT0,
@@ -81,6 +91,7 @@ public sealed class GameDirector
         );
     }
 
+    [Pure]
     private IRenderable RenderFrame()
     {
         var body = _gameState.Match(
@@ -97,8 +108,10 @@ public sealed class GameDirector
 
     private OneOf<UserFeedback, Failure> HandleWordInput(Word userInput)
     {
+        Debug.WriteLine($"Handling user word input: {userInput} (Current state: {_gameState})");
         if (_gameState.TryPickT0(out var planner, out var referee))
         {
+            Debug.WriteLine("Configuring letter pool...");
             return planner.TryConfigureLetterPool(userInput)
                           .Match(
                               _ => TryStartGame(),
@@ -109,13 +122,26 @@ public sealed class GameDirector
         return referee.JudgeWord(userInput);
     }
 
-    private OfThree<UserFeedback, FinalResults, Failure> ExecuteCommand(Command command)
+    private static readonly AliasMatcher
+        LetterSortingMatcher = AliasMatcher.ForEnum<LetterPoolDisplay.LetterSorting>();
+
+    private OfThree<UserFeedback, FinalResults, Failure> ExecuteCommand(CommandLine<Command> command)
     {
+        Debug.WriteLine($"Executing command: {command}");
         return command switch
         {
-            Command.Start => TryStartGame(),
-            Command.Exit  => TryEndGame(),
-            _             => throw new UnreachableException()
+            { Command: Command.Start }                     => TryStartGame(),
+            { Command: Command.Exit }                      => TryEndGame(),
+            { Command: Command.Sort, Arguments: var args } => TrySort(args),
+            _                                              => throw new UnreachableException()
         };
+    }
+
+    private OneOf<UserFeedback, Failure> TrySort(ValueArray<string> args)
+    {
+        return _gameState.Match(
+            planner => new Failure("Nothing to sort at the moment; you aren't in-game."),
+            referee => GameAssistantDirector.TrySort(args, referee, LetterSortingMatcher)
+        );
     }
 }

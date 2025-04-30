@@ -56,7 +56,7 @@ public sealed class GameReferee
     public UserFeedback JudgeWord(Word word)
     {
         var judgement = _submissionManager.SubmitWord(word, _sharedResources.GamePlan.Language);
-        return UserFeedback.FromJudgement(judgement, _sharedResources.GamePlan.Theme);
+        return UserFeedback.FromJudgement(judgement);
     }
 
     public ImmutableDictionary<LangWord, SubmissionManager.WordRating?> GetCurrentSubmissions() =>
@@ -68,7 +68,7 @@ public sealed class GameReferee
     {
         return new UserFeedback(
             UserFeedback.FeedbackTone.Positive,
-            "✍️",
+            UserFeedback.FeedbackIcon.WritingPrompt,
             $"Enter a word that is at least {_sharedResources.GamePlan.MinimumWordLength} letters long."
         );
     }
@@ -81,5 +81,29 @@ public sealed class GameReferee
             _letterPoolDisplay,
             _sharedResources
         );
+    }
+
+    public UserFeedback Sort(SortCommand sortCommand)
+    {
+        _ = sortCommand switch
+        {
+            SortCommand.SortNext     => _letterPoolDisplay.SortNext(),
+            SortCommand.Original     => _letterPoolDisplay.Sort(LetterPoolDisplay.LetterSorting.AsOriginallyGiven),
+            SortCommand.Alphabetical => _letterPoolDisplay.Sort(LetterPoolDisplay.LetterSorting.Alphabetical),
+            SortCommand.Phonological => _letterPoolDisplay.Sort(LetterPoolDisplay.LetterSorting.Phonological),
+            SortCommand.Random       => _letterPoolDisplay.Sort(LetterPoolDisplay.LetterSorting.Random),
+            _                        => throw new ArgumentOutOfRangeException(nameof(sortCommand), sortCommand, null)
+        };
+
+        return UserFeedback.FromLetterSorting(_letterPoolDisplay.CurrentSorting);
+    }
+
+    public enum SortCommand
+    {
+        [AliasMatcher.Alias("next")]    SortNext,
+        [AliasMatcher.Alias("og")]      Original,
+        [AliasMatcher.Alias("abc")]     Alphabetical,
+        [AliasMatcher.Alias("vowels")]  Phonological,
+        [AliasMatcher.Alias("shuffle")] Random,
     }
 }

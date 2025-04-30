@@ -1,11 +1,13 @@
-﻿using FightinWords.Submissions;
+﻿using System.Diagnostics;
+using FightinWords.Console.Rendering;
+using FightinWords.Submissions;
 using OneOf;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
 namespace FightinWords.Console;
 
-public readonly record struct UserFeedback(UserFeedback.FeedbackTone Tone, string Icon, string Message)
+public readonly record struct UserFeedback(UserFeedback.FeedbackTone Tone, UserFeedback.FeedbackIcon? Icon, string Message)
 {
     public enum FeedbackTone
     {
@@ -14,12 +16,27 @@ public readonly record struct UserFeedback(UserFeedback.FeedbackTone Tone, strin
         Negative
     }
 
-    public static UserFeedback Error(Failure failure, SpectreFactory.Theme theme)
+    public enum FeedbackIcon
     {
-        return new UserFeedback(FeedbackTone.Negative, theme.Icons.Error, failure.Reason);
+        Error,
+        Rejection,
+        Success,
+        StaleWord,
+
+        OriginalSorting,
+        AlphabeticalSorting,
+        PhonologicalSorting,
+        RandomSorting,
+
+        WritingPrompt,
     }
 
-    public static UserFeedback FromJudgement(OneOf<Judgement, Failure> userFeedback, SpectreFactory.Theme theme)
+    public static UserFeedback Error(Failure failure)
+    {
+        return new UserFeedback(FeedbackTone.Negative, FeedbackIcon.Error, failure.Reason);
+    }
+
+    public static UserFeedback FromJudgement(OneOf<Judgement, Failure> userFeedback)
     {
         if (userFeedback.TryPickT0(out var judgement, out var failure))
         {
@@ -27,12 +44,12 @@ public readonly record struct UserFeedback(UserFeedback.FeedbackTone Tone, strin
             {
                 { Legality: SubmissionManager.Legality.FakeWord } => new UserFeedback(
                     FeedbackTone.Negative,
-                    theme.Icons.Rejection,
+                    FeedbackIcon.Rejection,
                     $"\"{judgement.Word}\" is not a real word."
                 ),
                 { Freshness: SubmissionManager.Freshness.Stale } => new UserFeedback(
                     FeedbackTone.Neutral,
-                    theme.Icons.StaleWord,
+                    FeedbackIcon.StaleWord,
                     $"\"{judgement.Word}\" has already been submitted."
                 ),
                 {
@@ -40,24 +57,57 @@ public readonly record struct UserFeedback(UserFeedback.FeedbackTone Tone, strin
                     Score.Points: var points
                 } => new UserFeedback(
                     FeedbackTone.Positive,
-                    theme.Icons.Success,
+                    FeedbackIcon.Success,
                     $"\"{judgement.Word}\" is worth {points} points."
                 ),
                 _ => throw new ApplicationException($"Something ain't right with this here judgement: {judgement}")
             };
         }
 
-        return Error(failure, theme);
+        return Error(failure);
+    }
+
+    public static UserFeedback FromLetterSorting(LetterPoolDisplay.LetterSorting letterSorting)
+    {
+        var (icon, message) = letterSorting switch
+        {
+            LetterPoolDisplay.LetterSorting.AsOriginallyGiven => (FeedbackIcon.OriginalSorting, "Letters sorted as originally given."),
+            LetterPoolDisplay.LetterSorting.Alphabetical      => (FeedbackIcon.AlphabeticalSorting, "Letters sorted alphabetically."),
+            LetterPoolDisplay.LetterSorting.Phonological      => (FeedbackIcon.PhonologicalSorting, "Letters sorted phonologically (vowel > semivowel > consonant)."),
+            LetterPoolDisplay.LetterSorting.Random            => (FeedbackIcon.RandomSorting, "Letters shuffled."),
+            _                                                 => throw new ArgumentOutOfRangeException(nameof(letterSorting), letterSorting, null)
+        };
+
+        return new UserFeedback(FeedbackTone.Neutral, icon, message);
     }
 
     public IRenderable ToRenderable(SpectreFactory.Theme theme)
     {
-        return Markup.FromInterpolated($"{Icon} {Message}", Tone switch
+        var iconString = Icon switch
+        {
+            FeedbackIcon.Error               => theme.Icons.Error,
+            FeedbackIcon.Rejection           => theme.Icons.Rejection,
+            FeedbackIcon.Success             => theme.Icons.Success,
+            FeedbackIcon.StaleWord           => theme.Icons.StaleWord,
+            FeedbackIcon.OriginalSorting     => theme.Icons.OriginalSorting,
+            FeedbackIcon.AlphabeticalSorting => theme.Icons.AlphabeticalSorting,
+            FeedbackIcon.PhonologicalSorting => theme.Icons.PhonologicalSorting,
+            FeedbackIcon.RandomSorting       => theme.Icons.RandomSorting,
+            null                             => null,
+            _                                => throw new UnreachableException()
+        };
+
+        if (iconString is not null)
+        {
+            iconString += " ";
+        }
+
+        return Markup.FromInterpolated($"{iconString} {Message}", Tone switch
         {
             FeedbackTone.Neutral  => theme.NeutralFeedback,
             FeedbackTone.Positive => theme.PositiveFeedback,
             FeedbackTone.Negative => theme.NegativeFeedback,
-            _                     => throw new InvalidOperationException()
+            _                     => throw new UnreachableException()
         });
     }
 }

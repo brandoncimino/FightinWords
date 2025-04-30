@@ -9,18 +9,22 @@ public sealed class LetterPoolDisplay
         LetterSorting   initialSort = LetterSorting.Phonological
     )
     {
-        return new LetterPoolDisplay(sharedResources).Sort(initialSort);
+        var pool = new LetterPoolDisplay(sharedResources);
+        pool.Sort(initialSort);
+        return pool;
     }
 
     public enum LetterSorting
     {
-        [AliasMatcher.Alias("og")]      OriginallyGiven,
-        [AliasMatcher.Alias("abc")]     Alphabetical,
-        [AliasMatcher.Alias("vowels")]  Phonological,
-        [AliasMatcher.Alias("shuffle")] Random,
+        AsOriginallyGiven,
+        Alphabetical,
+        Phonological,
+        Random,
     }
 
-    private static readonly int PossibleLettersSortings = Enum.GetValues(typeof(LetterSorting)).Length;
+    private static readonly int PossibleLettersSortings = Enum.GetValues<LetterSorting>()
+                                                              .Distinct()
+                                                              .Count();
 
     private readonly SharedResources _sharedResources;
     private readonly Grapheme[]      _currentDisplay;
@@ -52,14 +56,28 @@ public sealed class LetterPoolDisplay
         };
     }
 
-    public LetterPoolDisplay Sort(LetterSorting newStyle)
+    /// <summary>
+    /// Sorts the <see cref="_currentDisplay"/> based on the given <see cref="LetterSorting"/>.
+    /// </summary>
+    /// <param name="newSorting"></param>
+    /// <returns><c>true</c> if we were able to apply the <paramref name="newSorting"/> <i>(either because it differed from the <see cref="CurrentSorting"/> or, in the case of <see cref="LetterSorting.Random"/>, it was not idempotent)</i></returns>
+    /// <exception cref="ArgumentOutOfRangeException">You've given me a junk <see cref="LetterSorting"/></exception>
+    /// <remarks>
+    /// <ul>
+    /// <li>After this method, <see cref="CurrentSorting"/> should <b><i>always</i></b> equal <paramref name="newSorting"/>.</li>
+    /// <li>Just because this method returned <c>true</c> doesn't mean that the <see cref="_currentDisplay"/> changed, because the <paramref name="newSorting"/>
+    /// may have produced the same result.
+    /// For example, <c>['a', 'b', 'c']</c> is sorted both <see cref="LetterSorting.Alphabetical"/>ly and <see cref="LetterSorting.Phonological"/>ly.</li>
+    /// </ul>
+    /// </remarks>
+    public bool Sort(LetterSorting newSorting)
     {
-        if (newStyle == CurrentSorting && newStyle is not LetterSorting.Random)
+        if (newSorting == CurrentSorting && newSorting is not LetterSorting.Random)
         {
-            return this;
+            return false;
         }
 
-        switch (newStyle)
+        switch (newSorting)
         {
             case LetterSorting.Random:
                 _sharedResources.Random.Shuffle(_currentDisplay);
@@ -70,18 +88,22 @@ public sealed class LetterPoolDisplay
             case LetterSorting.Phonological:
                 _currentDisplay.AsSpan().Sort(_phonological);
                 break;
-            case LetterSorting.OriginallyGiven:
+            case LetterSorting.AsOriginallyGiven:
                 _sharedResources.GamePlan.ProgenitorPool.Letters.Values.CopyTo(_currentDisplay);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(newStyle), newStyle, null);
+                throw new ArgumentOutOfRangeException(nameof(newSorting), newSorting, null);
         }
 
-        CurrentSorting = newStyle;
-        return this;
+        CurrentSorting = newSorting;
+        return true;
     }
 
-    public LetterPoolDisplay SortNext()
+    /// <summary>
+    /// <see cref="Sort"/>s using the next-highest <see cref="LetterSorting"/>, looping around after the last one.
+    /// </summary>
+    /// <returns><c>true</c> if we were able to apply the next <see cref="LetterSorting"/> <i>(which should always be the case, since this should always result in a change to the <see cref="CurrentSorting"/>)</i></returns>
+    public bool SortNext()
     {
         var nextSorting = ((int)CurrentSorting + 1) % PossibleLettersSortings;
         return Sort((LetterSorting)nextSorting);

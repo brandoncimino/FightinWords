@@ -19,16 +19,28 @@ public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, Co
 
     private readonly AliasMatcher _commandMatcher;
 
-    public CommandInterceptor(IDictionary<COMMAND, IEnumerable<string>> aliases)
-    {
-        _commandMatcher = new AliasMatcher(
-            aliases.Select(it =>
-                new AliasMatcher.KnownAlias(
-                    Enum.GetName(it.Key)!,
-                    [..it.Value]
-                )
+    public CommandInterceptor(IDictionary<COMMAND, IEnumerable<string>> aliases) : this(new AliasMatcher(
+        aliases.Select(it =>
+            new AliasMatcher.KnownAlias(
+                Enum.GetName(it.Key)!,
+                [..it.Value]
             )
-        );
+        )
+    ))
+    {
+    }
+
+    private CommandInterceptor(AliasMatcher aliasMatcher)
+    {
+        _commandMatcher = aliasMatcher;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="CommandInterceptor{COMMAND}"/> backed by <see cref="AliasMatcher.ForEnum{COMMAND}"/>.
+    /// </summary>
+    public CommandInterceptor()
+    {
+        _commandMatcher = AliasMatcher.ForEnum<COMMAND>();
     }
 
     public OneOf<CommandLine<COMMAND>?, Failure> ScreenInput(string rawSubmission)
@@ -78,5 +90,4 @@ public sealed class CommandInterceptor<COMMAND> : ISubmissionScreener<string, Co
     }
 }
 
-public readonly record struct CommandLine<COMMAND>(COMMAND Command, ValueArray<string> Arguments)
-    where COMMAND : struct, Enum;
+public readonly record struct CommandLine<COMMAND>(COMMAND Command, ValueArray<string> Arguments) where COMMAND : struct, Enum;

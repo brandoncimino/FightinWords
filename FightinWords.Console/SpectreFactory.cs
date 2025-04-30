@@ -53,7 +53,16 @@ public static class SpectreFactory
 
             return style;
         }
+
+        public enum SortingIcon
+        {
+            Original,
+            Alphabetical,
+            Phonological,
+            Random
+        }
     }
+
 
     public readonly record struct Icons()
     {
@@ -62,10 +71,24 @@ public static class SpectreFactory
         public const string SuccessDefault   = "✅";
         public const string StaleWordDefault = "🔁";
 
+        public const string OriginalSortingDefault     = "🔙";
+        public const string AlphabeticalSortingDefault = "🔤";
+        public const string PhonologicalSortingDefault = "ℹ️";
+        public const string RandomSortingDefault       = "🔀";
+
+        public const string WritingPromptDefault = "✍️";
+
         public string Error     { get; init; } = ErrorDefault;
         public string Rejection { get; init; } = RejectionDefault;
         public string Success   { get; init; } = SuccessDefault;
         public string StaleWord { get; init; } = StaleWordDefault;
+
+        public string OriginalSorting     { get; init; } = OriginalSortingDefault;
+        public string AlphabeticalSorting { get; init; } = AlphabeticalSortingDefault;
+        public string PhonologicalSorting { get; init; } = PhonologicalSortingDefault;
+        public string RandomSorting       { get; init; } = RandomSortingDefault;
+
+        public string WritingPrompt { get; init; } = WritingPromptDefault;
     }
 
     public static IRenderable RenderLetterPool(
