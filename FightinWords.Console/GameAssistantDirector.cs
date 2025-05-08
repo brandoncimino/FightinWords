@@ -27,7 +27,7 @@ public static class GameAssistantDirector
     {
         return args switch
         {
-            []            => referee.SortNext(),
+            []            => referee.Sort(GameReferee.SortCommand.SortNext),
             [var sortArg] => SortSingle(sortArg, referee, letterSortingMatcher),
             [_, _, ..]    => new Failure($"Expected exactly 1 argument, but got {args.Values.Length}: {args}")
         };
@@ -40,7 +40,7 @@ public static class GameAssistantDirector
         {
             return letterSortingMatcher.FindMatch(sortArg)
                                        .Map(
-                                           alias => Enum.Parse<LetterPoolDisplay.LetterSorting>(alias.CanonicalName),
+                                           alias => Enum.Parse<GameReferee.SortCommand>(alias.CanonicalName),
                                            aliasFailure => new Failure(aliasFailure.GetMessage())
                                        )
                                        .MapT0(referee.Sort);
