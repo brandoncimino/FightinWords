@@ -93,6 +93,7 @@ public readonly record struct UserFeedback(UserFeedback.FeedbackTone Tone, UserF
             FeedbackIcon.AlphabeticalSorting => theme.Icons.AlphabeticalSorting,
             FeedbackIcon.PhonologicalSorting => theme.Icons.PhonologicalSorting,
             FeedbackIcon.RandomSorting       => theme.Icons.RandomSorting,
+            FeedbackIcon.WritingPrompt       => theme.Icons.WritingPrompt,
             null                             => null,
             _                                => throw new UnreachableException()
         };
