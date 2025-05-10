@@ -7,6 +7,7 @@ public enum Command
 {
     Exit,
     Start,
+    Sort,
 }
 
 public readonly record struct CommandInvocation<COMMAND, ARGS>(COMMAND Command, CommandArgs<ARGS> Args)
