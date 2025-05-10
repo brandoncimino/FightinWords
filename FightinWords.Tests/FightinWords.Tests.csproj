@@ -31,8 +31,4 @@
       <ProjectReference Include="..\FightinWords\FightinWords.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Scoring\" />
-    </ItemGroup>
-
 </Project>
