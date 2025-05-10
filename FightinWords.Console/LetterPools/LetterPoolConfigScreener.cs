@@ -17,7 +17,7 @@ public sealed class LetterPoolConfigScreener : ISubmissionScreener<Word, ILetter
 
     public UserFeedback GetPrompt()
     {
-        return new UserFeedback(UserFeedback.FeedbackTone.Neutral, "✍️", Instructions);
+        return new UserFeedback(UserFeedback.FeedbackTone.Neutral, UserFeedback.FeedbackIcon.WritingPrompt, Instructions);
     }
 
     private static Failure GetFailure(string specificError)
