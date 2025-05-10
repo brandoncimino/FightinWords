@@ -15,7 +15,7 @@ namespace FightinWords.Console;
 /// </summary>
 public sealed class GameDirector
 {
-    private readonly InputReader                     _inputReader = new();
+    private readonly InputReader<Command>            _inputReader = new();
     private          OneOf<GamePlanner, GameReferee> _gameState   = new GamePlanner();
     public required  IAnsiConsole                    Console { get; init; }
     public           SpectreFactory.Theme            Theme   { get; init; } = new();
@@ -69,7 +69,7 @@ public sealed class GameDirector
         return finalResults;
     }
 
-    private OneOf<UserFeedback, FinalResults> ProcessUserInput(UserInput userInput)
+    private OneOf<UserFeedback, FinalResults> ProcessUserInput(InputReader<Command>.UserInput userInput)
     {
         Debug.WriteLine($"Processing user input: {userInput} // {userInput.Parsed}");
 
@@ -87,7 +87,7 @@ public sealed class GameDirector
         return result.Switch(
             OneOf<UserFeedback, FinalResults>.FromT0,
             OneOf<UserFeedback, FinalResults>.FromT1,
-            failure => UserFeedback.Error(failure, Theme)
+            failure => UserFeedback.Error(failure)
         );
     }
 
