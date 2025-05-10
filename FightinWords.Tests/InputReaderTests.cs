@@ -26,7 +26,7 @@ public class InputReaderTests
     {
         var expectedCommand = new CommandLine<Command>(Command.Start, []);
 
-        var reader = new InputReader()
+        var reader = new InputReader<Command>()
         {
             CommandInterceptor = _ => expectedCommand,
             WordParser         = _ => throw TestHelpers.Fail()
@@ -42,7 +42,7 @@ public class InputReaderTests
     public void InputReader_WhenCommandFails_ThenImmediatelyReturn()
     {
         var expectedFailure = new Failure("so bad");
-        var reader = new InputReader()
+        var reader = new InputReader<Command>()
         {
             CommandInterceptor = _ => expectedFailure,
             WordParser         = _ => throw TestHelpers.Fail()
@@ -58,7 +58,7 @@ public class InputReaderTests
     public void InputReader_WhenCommandReturnsNull_ThenParserIsInvoked_Success()
     {
         var expectedWord = Word.Parse("success");
-        var reader = new InputReader()
+        var reader = new InputReader<Command>()
         {
             CommandInterceptor = _ => null,
             WordParser         = _ => expectedWord
@@ -74,7 +74,7 @@ public class InputReaderTests
     public void InputReader_WhenCommandReturnsNull_ThenParserIsInvoked_Failure()
     {
         var expectedFailure = new Failure("disgusting");
-        var reader = new InputReader()
+        var reader = new InputReader<Command>()
         {
             CommandInterceptor = _ => null,
             WordParser         = _ => expectedFailure
